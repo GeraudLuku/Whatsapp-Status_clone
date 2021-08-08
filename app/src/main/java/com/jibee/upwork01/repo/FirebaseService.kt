@@ -4,19 +4,29 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.lifecycle.LiveData
 import com.google.android.gms.tasks.Continuation
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.UploadTask
 import com.jibee.upwork01.models.Src
-import com.jibee.upwork01.models.story
+import com.jibee.upwork01.models.Story
+import kotlinx.coroutines.*
 import java.util.*
 import kotlin.collections.ArrayList
 
 object FirebaseService {
+
+    var job: CompletableJob? = null
 
     //methods for the firebase real-time database
 
@@ -34,7 +44,7 @@ object FirebaseService {
                 .setValue(src)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful)
-                        Log.d("Post-status", "Added story")
+                        Toast.makeText(context, "Story Added", Toast.LENGTH_LONG).show()
                     else
                         Log.d("Post-status", "error adding story")
                 }.addOnFailureListener {
@@ -83,8 +93,7 @@ object FirebaseService {
                                 Log.d("Post-status", "error adding story")
                         }.addOnFailureListener {
                             Log.d("Post-status", it.localizedMessage!!)
-                            Toast.makeText(context, "Error Adding Story..", Toast.LENGTH_LONG)
-                                .show()
+                            Toast.makeText(context, "Error Adding Story..", Toast.LENGTH_LONG).show()
                         }
 
                 } else {
@@ -97,8 +106,5 @@ object FirebaseService {
 
     }
 
-    suspend fun getStatus(): ArrayList<story>? {
 
-        return null
-    }
 }

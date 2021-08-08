@@ -11,13 +11,20 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.appexecutors.picker.Picker
 import com.appexecutors.picker.Picker.Companion.PICKED_MEDIA_LIST
 import com.appexecutors.picker.Picker.Companion.REQUEST_CODE_PICKER
 import com.appexecutors.picker.utils.PickerOptions
 import com.jibee.upwork01.R
+import com.jibee.upwork01.adapters.StoriesAdapter
+import com.jibee.upwork01.models.Src
+import com.jibee.upwork01.models.Story
+import com.jibee.upwork01.repo.StoriesViewModel
 import com.jibee.upwork01.util.URIPathHelper
 import com.theartofdev.edmodo.cropper.CropImage
 import com.videotrimmer.library.utils.CompressOption
@@ -26,9 +33,13 @@ import kotlinx.android.synthetic.main.fragment_main.*
 import java.net.URLConnection
 
 
-class MainFragment : Fragment() {
+class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
 
     private lateinit var navController: NavController
+
+    private lateinit var storiesViewModel: StoriesViewModel
+
+    private var storyList: ArrayList<Story> = ArrayList()
 
 
     override fun onCreateView(
@@ -52,6 +63,25 @@ class MainFragment : Fragment() {
 
         //configure nav controller
         navController = findNavController()
+
+        //subscribe to the view model
+        storiesViewModel = ViewModelProvider(requireActivity()).get(StoriesViewModel::class.java)
+
+        //listen to new status/stories added
+        storiesViewModel._posts.observe(viewLifecycleOwner, Observer {
+            if (it.size > 0){
+                Log.d("Sucess", it[0].content[0].description)
+                Log.d("Main", "got some stories")
+                emptyIndicator.visibility = View.GONE //hide it
+
+                storyList = it
+                val adapter = StoriesAdapter(storyList, this)
+                recyclerView.adapter = adapter
+                recyclerView.layoutManager =
+                    LinearLayoutManager(view.context, LinearLayoutManager.VERTICAL, false)
+                recyclerView.setHasFixedSize(true)
+            }
+        })
 
 
         val mPickerOptions =
@@ -117,7 +147,8 @@ class MainFragment : Fragment() {
                 val resultUri = result.uri
                 Log.d("Cropper-Pass", result.toString())
                 //send uri to Details fragment
-                val action = MainFragmentDirections.actionMainFragmentToDetailFragment(resultUri.toString())
+                val action =
+                    MainFragmentDirections.actionMainFragmentToDetailFragment(resultUri.toString())
                 navController.navigate(action)
 
             } else if (resultCode === CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
@@ -139,6 +170,10 @@ class MainFragment : Fragment() {
     fun isImageFile(path: String?): Boolean {
         val mimeType: String = URLConnection.guessContentTypeFromName(path)
         return mimeType != null && mimeType.startsWith("image")
+    }
+
+    override fun onItemCLicked(story: Story) {
+        Log.d("Story-Click", "${story.content}")
     }
 
 }
