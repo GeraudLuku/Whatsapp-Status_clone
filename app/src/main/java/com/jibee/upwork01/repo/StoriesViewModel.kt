@@ -36,67 +36,81 @@ class StoriesViewModel(application: Application) : AndroidViewModel(application)
     fun getStatus() {
 
         Log.d("result", "hello world")
+        //array list to hold array of src
+        val list = arrayListOf<Src>()
+        val listStory = arrayListOf<Story>()
 
         Firebase.database.reference.child("story")
-            .addChildEventListener(object : ChildEventListener {
-                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                    //array list to hold array of src
-                    val list = arrayListOf<Src>()
-                    val listStory = arrayListOf<Story>()
-                    //inside each user enter the content
-                    Log.d("content", snapshot.child("content").value.toString())
 
-                    for (dc in snapshot.child("content").children) {
-                        Log.d("hell-1-", dc.value.toString())
-                        //convert each of them to src object
-                        val src = dc.getValue(Src::class.java)
-                        list.add(src!!)
-                        Log.d("count","${list.size}")
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+
+                    //clear list before using them again
+                    list.clear()
+                    listStory.clear()
+
+                    for (snapshot in snapshot.children) {
+
+                        for (dc in snapshot.child("content").children) {
+
+                            Log.d("hell-1-", dc.value.toString())
+                            //convert each of them to src object
+                            val src = dc.getValue(Src::class.java)
+                            list.add(src!!)
+                            Log.d("count", "${list.size}")
+                        }
+
+                        //when you have the list of scr, now create a list of story
+                        listStory.add(Story(content = list))
+
+                        //final pass the value to livedata object
+                        _posts.value = listStory
                     }
-
-                    //when you have the list of scr, now create a list of story
-                    listStory.add(Story(content = list))
-
-                    //final pass the value to livedata object
-                    _posts.value = listStory
-                }
-
-                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-                    TODO("Not yet implemented")
-                }
-
-                override fun onChildRemoved(snapshot: DataSnapshot) {
-                    TODO("Not yet implemented")
-                }
-
-                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
-                    TODO("Not yet implemented")
                 }
 
                 override fun onCancelled(error: DatabaseError) {
                     TODO("Not yet implemented")
                 }
+
             })
 
 
-//            .addValueEventListener(object : ValueEventListener {
-//                override fun onDataChange(snapshot: DataSnapshot) {
-//                    val list = arrayListOf<Story>()
-//                    for (sc in snapshot.child("content").children) {
-//                        //construct the story object
-//                        //val srcObject = Src(sc.child("uid").value.toString())
-//                        //list.add(sc.getValue(Story::class.java)!!)
-//                        Log.d("result", sc.getValue(String::class.java)!!)
+//            .addChildEventListener(object : ChildEventListener {
+//                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+//
+//                    //inside each user enter the content
+//                    Log.d("content", snapshot.child("content").value.toString())
+//
+//                    for (dc in snapshot.child("content").children) {
+//                        Log.d("hell-1-", dc.value.toString())
+//                        //convert each of them to src object
+//                        val src = dc.getValue(Src::class.java)
+//                        list.add(src!!)
+//                        Log.d("count", "${list.size}")
 //                    }
 //
-//                    _posts.value = list
+//                    //when you have the list of scr, now create a list of story
+//                    listStory.add(Story(content = list))
 //
+//                    //final pass the value to livedata object
+//                    _posts.value = listStory
+//                }
+//
+//                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+//
+//                }
+//
+//                override fun onChildRemoved(snapshot: DataSnapshot) {
+//                    TODO("Not yet implemented")
+//                }
+//
+//                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+//                    TODO("Not yet implemented")
 //                }
 //
 //                override fun onCancelled(error: DatabaseError) {
 //                    TODO("Not yet implemented")
 //                }
-//
 //            })
     }
 
