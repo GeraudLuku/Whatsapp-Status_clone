@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "446201589388",
+    "firebase_url": "https://messageapp-53be7-default-rtdb.firebaseio.com",
+    "project_id": "messageapp-53be7",
+    "storage_bucket": "messageapp-53be7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:446201589388:android:577ca7a7f99617e59ed5a9",
+        "android_client_info": {
+          "package_name": "com.jibee.upwork01"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "446201589388-mig4kgm2fkb1nt5513n0kbnid8t25btq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDaml2P27NQnwzDZG_SiPYQ6qxGPnrEZ68"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "446201589388-mig4kgm2fkb1nt5513n0kbnid8t25btq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
