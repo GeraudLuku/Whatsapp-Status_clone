@@ -121,6 +121,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
+        tools:listitem="@layout/user_story_item"
         android:layout_height="0dp"
         android:layout_marginTop="10dp"
         android:background="@color/white"
