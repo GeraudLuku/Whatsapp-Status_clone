@@ -20,7 +20,7 @@ object FirebaseService {
 
     //methods for the firebase real-time database
 
-    suspend fun postStatus(src: Src,context: Context) {
+    suspend fun postStatus(src: Src, context: Context) {
 
         //check if its a media or a text
         if (src.type.equals("text")) {
@@ -49,49 +49,50 @@ object FirebaseService {
                         + UUID.randomUUID().toString()
             )
             val uploadTask = ref.putFile(Uri.parse(src.src))
-            val urlTask =
-                uploadTask.continueWithTask(Continuation<UploadTask.TaskSnapshot, Task<Uri>> { task ->
-                    if (!task.isSuccessful) {
-                        task.exception?.let {
+
+            uploadTask.continueWithTask(Continuation<UploadTask.TaskSnapshot, Task<Uri>> { task ->
+                if (!task.isSuccessful) {
+                    task.exception?.let {
+                        Log.d("Post-status", it.localizedMessage!!)
+                        throw it
+                    }
+                }
+                return@Continuation ref.downloadUrl
+            }).addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val downloadUri = task.result
+                    Log.d("Post-status", "Downloaded URL: is ${downloadUri.toString()}")
+                    var downloadUrl = downloadUri.toString() //Return URL of uploaded doc
+
+                    //upload src ofimage to the downloadUri
+                    src.src = downloadUrl
+
+                    //now use the download uri to post the status in the real-time database
+                    val userId = FirebaseAuth.getInstance().currentUser?.uid!!
+                    val db = Firebase.database
+                    db.reference.child("story")
+                        .child(userId)
+                        .child("content")
+                        .push()
+                        .setValue(src)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                Log.d("Post-status", "Added story")
+                                Toast.makeText(context, "Story Added", Toast.LENGTH_LONG).show()
+                            } else
+                                Log.d("Post-status", "error adding story")
+                        }.addOnFailureListener {
                             Log.d("Post-status", it.localizedMessage!!)
-                            throw it
+                            Toast.makeText(context, "Error Adding Story..", Toast.LENGTH_LONG)
+                                .show()
                         }
-                    }
-                    return@Continuation ref.downloadUrl
-                }).addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val downloadUri = task.result
-                        Log.d("Post-status", "Downloaded URL: is ${downloadUri.toString()}")
-                        var downloadUrl = downloadUri.toString() //Return URL of uploaded doc
 
-                        //upload src ofimage to the downloadUri
-                        src.src = downloadUrl
-
-                        //now use the download uri to post the status in the real-time database
-                        val userId = FirebaseAuth.getInstance().currentUser?.uid!!
-                        val db = Firebase.database
-                        val myRef = db.reference.child("story")
-                            .child(userId)
-                            .child("content")
-                            .push()
-                            .setValue(src)
-                            .addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    Log.d("Post-status", "Added story")
-                                    Toast.makeText(context,"Story Added", Toast.LENGTH_LONG).show()
-                                } else
-                                    Log.d("Post-status", "error adding story")
-                            }.addOnFailureListener {
-                                Log.d("Post-status", it.localizedMessage!!)
-                                Toast.makeText(context,"Error Adding Story..", Toast.LENGTH_LONG).show()
-                            }
-
-                    } else {
-                        Log.d("Post-status", "upload failed")
-                    }
-                }.addOnFailureListener {
+                } else {
                     Log.d("Post-status", "upload failed")
                 }
+            }.addOnFailureListener {
+                Log.d("Post-status", "upload failed")
+            }
         }
 
     }

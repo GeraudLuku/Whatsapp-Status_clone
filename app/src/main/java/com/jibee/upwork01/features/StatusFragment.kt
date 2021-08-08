@@ -10,14 +10,20 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import com.google.firebase.auth.FirebaseAuth
 import com.jibee.upwork01.R
+import com.jibee.upwork01.models.Src
+import com.jibee.upwork01.repo.StoriesViewModel
 import kotlinx.android.synthetic.main.fragment_status.*
 
 
 class StatusFragment : Fragment() {
     private lateinit var navController: NavController
+
+    private lateinit var storiesViewModel: StoriesViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,6 +40,9 @@ class StatusFragment : Fragment() {
         //configure nav controller
         navController = findNavController()
 
+        //subscribe to the view model
+        storiesViewModel = ViewModelProvider(requireActivity()).get(StoriesViewModel::class.java)
+
         //close fragment when X is pressed
         closeBtn.setOnClickListener {
             view.let { activity?.hideKeyboard(it) }
@@ -42,8 +51,15 @@ class StatusFragment : Fragment() {
 
         //get text when done is pressed
         postBtn.setOnClickListener {
-            var postText = statusTxt.text
-            Toast.makeText(activity, "status created: $postText", Toast.LENGTH_LONG).show()
+            val postText = statusTxt.text.toString()
+
+            //create a src object
+            val newStatus = Src(FirebaseAuth.getInstance().currentUser?.uid!!,"text",postText,"12:30","no source")
+            //add the status
+            storiesViewModel.addStory(newStatus)
+            Toast.makeText(requireContext(),"Adding Status....",Toast.LENGTH_LONG).show()
+
+
             view.let { activity?.hideKeyboard(it) }
             navController.popBackStack()
         }

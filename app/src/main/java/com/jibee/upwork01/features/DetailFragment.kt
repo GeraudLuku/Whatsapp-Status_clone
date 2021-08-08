@@ -20,6 +20,7 @@ import com.jibee.upwork01.R
 import com.jibee.upwork01.models.Src
 import com.jibee.upwork01.repo.StoriesViewModel
 import kotlinx.android.synthetic.main.fragment_detail.*
+import java.io.File
 import java.net.URLConnection
 
 class DetailFragment : Fragment() {
@@ -30,6 +31,7 @@ class DetailFragment : Fragment() {
     private lateinit var storiesViewModel: StoriesViewModel
 
     private var typeMedia: String = ""
+    private var mediaUri: String = ""
 
 
     private var player: SimpleExoPlayer? = null
@@ -52,6 +54,11 @@ class DetailFragment : Fragment() {
         storiesViewModel = ViewModelProvider(requireActivity()).get(StoriesViewModel::class.java)
 
         Log.d("MediaUri1", args.mediaUri)
+        mediaUri = args.mediaUri
+
+        //image: file:///data/user/0/com.jibee.upwork01/cache/cropped394261694738506970.jpg
+        //video file:///storage/emulated/0/Android/data/com.jibee.upwork01/files/Download/trimmed_video_2021_7_8_13_47_50.mp4
+
 
 
         if (getLastNCharsOfString(args.mediaUri, 4).equals(".mp4"))
@@ -69,7 +76,7 @@ class DetailFragment : Fragment() {
 
             //push status to the database
             val userId = FirebaseAuth.getInstance().currentUser?.uid!!
-            val item = Src(userId, typeMedia, captionTxt.text.toString(), "12:30", args.mediaUri)
+            val item = Src(userId, typeMedia, captionTxt.text.toString(), "12:30", mediaUri)
             storiesViewModel.addStory(item)
             Toast.makeText(requireContext(),"Adding Story....",Toast.LENGTH_LONG).show()
             navController.popBackStack()
@@ -90,6 +97,9 @@ class DetailFragment : Fragment() {
                 exoPlayer.prepare()
 
             }
+
+        //modify video path, add file:// to the beginning
+        mediaUri = "file://"+args.mediaUri
     }
 
 
