@@ -181,6 +181,9 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
 
     override fun onItemCLicked(story: Story) {
         Log.d("Story-Click", "${story.content}")
+        //goto story view fragment
+        val action = MainFragmentDirections.actionMainFragmentToStoryViewFragment(story)
+        navController.navigate(action)
     }
 
 }

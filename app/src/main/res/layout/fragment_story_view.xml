@@ -16,6 +16,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <View
+            android:id="@+id/skip_backBtn"
+            android:layout_width="200dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@+id/footer"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/header" />
+
+        <View
+            android:id="@+id/skip_FrontBtn"
+            android:layout_width="200dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@+id/footer"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/header" />
+
         <ImageView
             android:id="@+id/image_mode"
             android:layout_width="match_parent"
@@ -62,9 +78,10 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:use_controller="true" />
+            app:use_controller="false" />
 
         <LinearLayout
+            android:id="@+id/header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
@@ -75,7 +92,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <jp.shts.android.storiesprogressview.StoriesProgressView
-                android:id="@+id/stories"
+                android:id="@+id/stories_progress_view"
                 android:layout_width="match_parent"
                 android:layout_height="5dp"
                 android:layout_gravity="top"
@@ -92,6 +109,7 @@
                 android:orientation="horizontal">
 
                 <ImageButton
+                    android:id="@+id/backBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@android:color/transparent"
@@ -110,18 +128,20 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/story_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        tools:text="Geraud"
                         android:textColor="@color/white"
                         android:textSize="17sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        tools:text="Geraud" />
 
                     <TextView
+                        android:id="@+id/story_time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        tools:text="12:00"
-                        android:textColor="@color/white" />
+                        android:textColor="@color/white"
+                        tools:text="12:00" />
 
                 </LinearLayout>
 
@@ -130,6 +150,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/footer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="7dp"
@@ -137,25 +158,39 @@
             android:gravity="center_horizontal"
             android:orientation="vertical"
             android:padding="5dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/reply_footer"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
             <TextView
+                android:id="@+id/story_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tools:text="This is the description of the status,This is the description of the status,This is the description of the status"
                 android:textAlignment="center"
                 android:textColor="@color/white"
                 android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                tools:text="This is the description of the status,This is the description of the status,This is the description of the status" />
 
             <View
+                android:id="@+id/footer_bar"
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
                 android:background="@color/gray_scale" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/reply_footer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="5dp"
+            android:gravity="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
 
             <ImageButton
                 android:layout_width="wrap_content"

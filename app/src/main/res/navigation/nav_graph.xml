@@ -16,6 +16,9 @@
         <action
             android:id="@+id/action_mainFragment_to_detailFragment"
             app:destination="@id/detailFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_storyViewFragment"
+            app:destination="@id/storyViewFragment" />
     </fragment>
     <fragment
         android:id="@+id/statusFragment"
@@ -30,5 +33,14 @@
         <argument
             android:name="mediaUri"
             app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/storyViewFragment"
+        android:name="com.jibee.upwork01.features.StoryViewFragment"
+        android:label="fragment_story_view"
+        tools:layout="@layout/fragment_story_view" >
+        <argument
+            android:name="storyItem"
+            app:argType="com.jibee.upwork01.models.Story" />
     </fragment>
 </navigation>
