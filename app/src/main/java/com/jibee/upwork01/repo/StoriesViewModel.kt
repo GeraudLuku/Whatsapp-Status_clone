@@ -69,7 +69,7 @@ class StoriesViewModel(application: Application) : AndroidViewModel(application)
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
+                    Log.d("error", error.message)
                 }
 
             })

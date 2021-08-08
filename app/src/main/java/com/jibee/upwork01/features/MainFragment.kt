@@ -15,6 +15,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.appexecutors.picker.Picker
 import com.appexecutors.picker.Picker.Companion.PICKED_MEDIA_LIST
@@ -22,7 +23,6 @@ import com.appexecutors.picker.Picker.Companion.REQUEST_CODE_PICKER
 import com.appexecutors.picker.utils.PickerOptions
 import com.jibee.upwork01.R
 import com.jibee.upwork01.adapters.StoriesAdapter
-import com.jibee.upwork01.models.Src
 import com.jibee.upwork01.models.Story
 import com.jibee.upwork01.repo.StoriesViewModel
 import com.jibee.upwork01.util.URIPathHelper
@@ -69,7 +69,7 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
 
         //listen to new status/stories added
         storiesViewModel._posts.observe(viewLifecycleOwner, Observer {
-            if (it.size > 0){
+            if (it.size > 0) {
                 Log.d("Sucess", it[0].content[0].description)
                 Log.d("Main", "got some stories")
                 emptyIndicator.visibility = View.GONE //hide it
@@ -80,6 +80,13 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
                 recyclerView.layoutManager =
                     LinearLayoutManager(view.context, LinearLayoutManager.VERTICAL, false)
                 recyclerView.setHasFixedSize(true)
+
+                //adding a divider
+                val dividerItemDecoration = DividerItemDecoration(
+                    recyclerView.context,
+                    LinearLayoutManager.VERTICAL
+                )
+                recyclerView.addItemDecoration(dividerItemDecoration)
             }
         })
 

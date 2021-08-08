@@ -56,7 +56,7 @@
                 app:portion_color="#B8BEBE"
                 app:portion_spacing="5dp"
                 app:portion_width="3dp"
-                app:portions_count="9" />
+                app:portions_count="1" />
         </RelativeLayout>
 
         <LinearLayout
