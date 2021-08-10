@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -19,19 +20,23 @@ import com.bumptech.glide.Glide
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.firebase.auth.FirebaseAuth
+import com.jibee.upwork01.MainViewModel
 import com.jibee.upwork01.R
 import com.jibee.upwork01.models.Src
+import com.jibee.upwork01.models.postStory.PostStory
 import com.jibee.upwork01.repo.StoriesViewModel
 import kotlinx.android.synthetic.main.fragment_detail.*
 import java.io.File
 import java.net.URLConnection
+import java.text.SimpleDateFormat
+import java.util.*
 
 class DetailFragment : Fragment() {
 
     private lateinit var navController: NavController
     private val args: DetailFragmentArgs by navArgs()
 
-    private lateinit var storiesViewModel: StoriesViewModel
+    private lateinit var mainViewModel: MainViewModel
 
     private var typeMedia: String = ""
     private var mediaUri: String = ""
@@ -54,7 +59,7 @@ class DetailFragment : Fragment() {
         navController = findNavController()
 
         //subscribe to the view model
-        storiesViewModel = ViewModelProvider(requireActivity()).get(StoriesViewModel::class.java)
+        mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
 
         Log.d("MediaUri1", args.mediaUri)
         mediaUri = args.mediaUri
@@ -77,13 +82,22 @@ class DetailFragment : Fragment() {
         postBtn.setOnClickListener {
 
             //push status to the database
-            val userId = FirebaseAuth.getInstance().currentUser?.uid!!
-            val item = Src(userId, typeMedia, captionTxt.text.toString(), "12:30", mediaUri)
-            storiesViewModel.addStory(item)
-            Toast.makeText(requireContext(), "Adding Story....", Toast.LENGTH_LONG).show()
-            view.let { activity?.hideKeyboard(it) }
-            navController.popBackStack()
+            val story = PostStory(
+                getCurrentDateTime().toString("yyyy/MM/dd HH:mm:ss"),
+                mediaURL = mediaUri,
+                mimeType = "media" //set media first so we know if its just plain text or a file
+            )
+            mainViewModel.setStoryInfo(story)
+//            storiesViewModel.addStory(item)
+//            Toast.makeText(requireContext(), "Adding Story....", Toast.LENGTH_LONG).show()
+//            view.let { activity?.hideKeyboard(it) }
+//            navController.popBackStack()
         }
+
+        //listen to add story return
+        mainViewModel.postStoryResponse.observe(viewLifecycleOwner,Observer{
+
+        })
 
     }
 
@@ -149,4 +163,13 @@ class DetailFragment : Fragment() {
         }
         return lastnChars
     }
+}
+
+fun Date.toString(format: String, locale: Locale = Locale.getDefault()): String {
+    val formatter = SimpleDateFormat(format, locale)
+    return formatter.format(this)
+}
+
+fun getCurrentDateTime(): Date {
+    return Calendar.getInstance().time
 }

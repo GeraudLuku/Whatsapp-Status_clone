@@ -21,8 +21,11 @@ import com.appexecutors.picker.Picker
 import com.appexecutors.picker.Picker.Companion.PICKED_MEDIA_LIST
 import com.appexecutors.picker.Picker.Companion.REQUEST_CODE_PICKER
 import com.appexecutors.picker.utils.PickerOptions
+import com.jibee.upwork01.MainViewModel
 import com.jibee.upwork01.R
 import com.jibee.upwork01.adapters.StoriesAdapter
+import com.jibee.upwork01.models.Stories.QueryStory
+import com.jibee.upwork01.models.Stories.Stories_All
 import com.jibee.upwork01.models.Story
 import com.jibee.upwork01.repo.StoriesViewModel
 import com.jibee.upwork01.util.URIPathHelper
@@ -37,9 +40,9 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
 
     private lateinit var navController: NavController
 
-    private lateinit var storiesViewModel: StoriesViewModel
+    private lateinit var mainViewModel: MainViewModel
 
-    private var storyList: ArrayList<Story> = ArrayList()
+    private var storyList: ArrayList<Stories_All> = ArrayList()
 
 
     override fun onCreateView(
@@ -65,28 +68,39 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
         navController = findNavController()
 
         //subscribe to the view model
-        storiesViewModel = ViewModelProvider(requireActivity()).get(StoriesViewModel::class.java)
+        mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
 
-        //listen to new status/stories added
-        storiesViewModel._posts.observe(viewLifecycleOwner, Observer {
-            if (it.size > 0) {
-                Log.d("Sucess", it[0].content[0].description)
-                Log.d("Main", "got some stories")
-                emptyIndicator.visibility = View.GONE //hide it
+        //listen to incoming story object
+        mainViewModel.storyObject?.observe(viewLifecycleOwner, Observer {
+            when (it.statusCode) {
+                200 -> {
+                    storyList.clear()
+                    //load stories and hide textview
+                    emptyIndicator.visibility = View.GONE
+                    Log.d("retrofit-responce", "$it")
 
-                storyList = it
-                val adapter = StoriesAdapter(storyList, this)
-                recyclerView.adapter = adapter
-                recyclerView.layoutManager =
-                    LinearLayoutManager(view.context, LinearLayoutManager.VERTICAL, false)
-                recyclerView.setHasFixedSize(true)
+                    storyList.add(it)
+                    val adapter = StoriesAdapter(storyList, this,requireContext())
+                    recyclerView.adapter = adapter
+                    recyclerView.layoutManager =
+                        LinearLayoutManager(view.context, LinearLayoutManager.VERTICAL, false)
+                    recyclerView.setHasFixedSize(true)
 
-                //adding a divider
-                val dividerItemDecoration = DividerItemDecoration(
-                    recyclerView.context,
-                    LinearLayoutManager.VERTICAL
-                )
-                recyclerView.addItemDecoration(dividerItemDecoration)
+                    //adding a divider
+                    val dividerItemDecoration = DividerItemDecoration(
+                        recyclerView.context,
+                        LinearLayoutManager.VERTICAL
+                    )
+                    recyclerView.addItemDecoration(dividerItemDecoration)
+                }
+                404 -> {
+                    //no stories so show textview indicator
+                    emptyIndicator.visibility = View.VISIBLE
+                }
+                417 -> {
+                    //error: sessionToken incorrect
+                    Log.d("error-retrofit", "incorrect sessionToken")
+                }
             }
         })
 
@@ -179,8 +193,8 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
         return mimeType != null && mimeType.startsWith("image")
     }
 
-    override fun onItemCLicked(story: Story) {
-        Log.d("Story-Click", "${story.content}")
+    override fun onItemCLicked(story: Stories_All) {
+        Log.d("Story-Click", "${story.results}")
         //goto story view fragment
         val action = MainFragmentDirections.actionMainFragmentToStoryViewFragment(story)
         navController.navigate(action)

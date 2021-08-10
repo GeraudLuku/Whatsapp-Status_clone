@@ -13,8 +13,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
+import com.jibee.upwork01.MainViewModel
 import com.jibee.upwork01.R
 import com.jibee.upwork01.models.Src
+import com.jibee.upwork01.models.postStory.PostStory
 import com.jibee.upwork01.repo.StoriesViewModel
 import kotlinx.android.synthetic.main.fragment_status.*
 
@@ -22,7 +24,7 @@ import kotlinx.android.synthetic.main.fragment_status.*
 class StatusFragment : Fragment() {
     private lateinit var navController: NavController
 
-    private lateinit var storiesViewModel: StoriesViewModel
+    private lateinit var mainViewModel: MainViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,7 +42,7 @@ class StatusFragment : Fragment() {
         navController = findNavController()
 
         //subscribe to the view model
-        storiesViewModel = ViewModelProvider(requireActivity()).get(StoriesViewModel::class.java)
+        mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
 
         //close fragment when X is pressed
         closeBtn.setOnClickListener {
@@ -52,6 +54,14 @@ class StatusFragment : Fragment() {
         postBtn.setOnClickListener {
             val postText = statusTxt.text.toString()
 
+            //push status to the database
+            val story = PostStory(
+                getCurrentDateTime().toString("yyyy/MM/dd HH:mm:ss"),
+                mediaURL = postText,
+                mimeType = "text" //set media first so we know if its just plain text or a file
+            )
+            mainViewModel.setStoryInfo(story)
+
             //create a src object
             val newStatus = Src(
                 FirebaseAuth.getInstance().currentUser?.uid!!,
@@ -61,8 +71,8 @@ class StatusFragment : Fragment() {
                 "no source"
             )
             //add the status
-            storiesViewModel.addStory(newStatus)
-            Toast.makeText(requireContext(), "Adding Status....", Toast.LENGTH_LONG).show()
+//            storiesViewModel.addStory(newStatus)
+//            Toast.makeText(requireContext(), "Adding Status....", Toast.LENGTH_LONG).show()
 
 
             view.let { activity?.hideKeyboard(it) }

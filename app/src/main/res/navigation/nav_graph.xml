@@ -41,6 +41,6 @@
         tools:layout="@layout/fragment_story_view" >
         <argument
             android:name="storyItem"
-            app:argType="com.jibee.upwork01.models.Story" />
+            app:argType="com.jibee.upwork01.models.Stories.Stories_All" />
     </fragment>
 </navigation>

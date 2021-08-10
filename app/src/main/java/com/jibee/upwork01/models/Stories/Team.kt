@@ -2,6 +2,7 @@ package com.jibee.upwork01.models.Stories
 
 
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 data class Team(
     @SerializedName("ID")
@@ -14,4 +15,4 @@ data class Team(
     val teamKey: String,
     @SerializedName("team_name")
     val teamName: String
-)
+):Serializable

@@ -2,6 +2,7 @@ package com.jibee.upwork01.models.Stories
 
 
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 data class Stories_All(
     @SerializedName("Message")
@@ -16,4 +17,4 @@ data class Stories_All(
     val totalPages: Int,
     @SerializedName("total_results")
     val totalResults: Int
-)
+):Serializable

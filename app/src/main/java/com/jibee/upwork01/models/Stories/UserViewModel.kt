@@ -2,6 +2,7 @@ package com.jibee.upwork01.models.Stories
 
 
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 data class UserViewModel(
     @SerializedName("FullName")
@@ -18,4 +19,4 @@ data class UserViewModel(
     val userID: Int,
     @SerializedName("UserName")
     val userName: String
-)
+) : Serializable
