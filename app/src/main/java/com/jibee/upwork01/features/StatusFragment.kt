@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -54,10 +53,16 @@ class StatusFragment : Fragment() {
             val postText = statusTxt.text.toString()
 
             //create a src object
-            val newStatus = Src(FirebaseAuth.getInstance().currentUser?.uid!!,"text",postText,"12:30","no source")
+            val newStatus = Src(
+                FirebaseAuth.getInstance().currentUser?.uid!!,
+                "text",
+                postText,
+                "12:30",
+                "no source"
+            )
             //add the status
             storiesViewModel.addStory(newStatus)
-            Toast.makeText(requireContext(),"Adding Status....",Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "Adding Status....", Toast.LENGTH_LONG).show()
 
 
             view.let { activity?.hideKeyboard(it) }
@@ -66,7 +71,8 @@ class StatusFragment : Fragment() {
     }
 
     fun Context.hideKeyboard(view: View) {
-        val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        val inputMethodManager =
+            getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 }

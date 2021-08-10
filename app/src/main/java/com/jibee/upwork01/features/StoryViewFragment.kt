@@ -10,7 +10,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.jibee.upwork01.R
 import com.jibee.upwork01.models.Story
@@ -136,6 +135,7 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
         footer.visibility = View.INVISIBLE
         //show imageview
 
+        //set random color on the text view backgroung like whartsapp
         text_mode_view.visibility = View.VISIBLE
         //set text on TextView
         text_mode.text = storyItem.content[currentItem].description

@@ -1,11 +1,14 @@
 package com.jibee.upwork01.features
 
+import android.app.Activity
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -60,7 +63,6 @@ class DetailFragment : Fragment() {
         //video file:///storage/emulated/0/Android/data/com.jibee.upwork01/files/Download/trimmed_video_2021_7_8_13_47_50.mp4
 
 
-
         if (getLastNCharsOfString(args.mediaUri, 4).equals(".mp4"))
             playVideo()
         else
@@ -78,10 +80,17 @@ class DetailFragment : Fragment() {
             val userId = FirebaseAuth.getInstance().currentUser?.uid!!
             val item = Src(userId, typeMedia, captionTxt.text.toString(), "12:30", mediaUri)
             storiesViewModel.addStory(item)
-            Toast.makeText(requireContext(),"Adding Story....",Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "Adding Story....", Toast.LENGTH_LONG).show()
+            view.let { activity?.hideKeyboard(it) }
             navController.popBackStack()
         }
 
+    }
+
+    fun Context.hideKeyboard(view: View) {
+        val inputMethodManager =
+            getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
 
@@ -99,7 +108,7 @@ class DetailFragment : Fragment() {
             }
 
         //modify video path, add file:// to the beginning
-        mediaUri = "file://"+args.mediaUri
+        mediaUri = "file://" + args.mediaUri
     }
 
 
