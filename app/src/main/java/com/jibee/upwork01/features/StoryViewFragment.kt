@@ -63,6 +63,7 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
         //set profile image
         Glide.with(requireContext())
             .load(storyItem.results[0].userViewModel.profilePhoto)
+            .into(profile_image)
 
         //start loading stories
         loadNextMedia(currentItem)
@@ -92,9 +93,9 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
                 //display image
                 displayImage(story)
             }
-            "video" -> {
+            "mp4" -> {
                 //display video
-                //displayVideo(currentItem)
+                displayVideo(story)
             }
             "text" -> {
                 //display text
@@ -136,7 +137,7 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
         //story_description.text = storyItem.content[currentItem].description
     }
 
-//    private fun displayText(currentItem: Int) {
+    //    private fun displayText(currentItem: Int) {
 //        if (isFirstLoad) {
 //            //upload duration time for notification bar
 //            storiesProgressView.setStoryDuration(6000)
@@ -160,40 +161,46 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
 //        story_time.text = storyItem.content[currentItem].time
 //    }
 //
-//    private fun displayVideo(currentItem: Int) {
-//        if (isFirstLoad) {
-//            storiesProgressView.setStoryDuration(50000)
-//            storiesProgressView.startStories()
-//            isFirstLoad = false
-//        }
-//        storiesProgressView.setStoryDuration(50000)
-//        //make the other two views invisible
-//        image_mode.visibility = View.INVISIBLE
-//        text_mode_view.visibility = View.INVISIBLE
-//
-//        footer.visibility = View.VISIBLE
-//
-//        //upload duration time for notification bar
-//        video_mode.visibility = View.VISIBLE
-//
-//        story_description.text = storyItem.content[currentItem].description
-//
-//        story_name.text = storyItem.content[currentItem].uid.substring(0, 5)
-//        story_time.text = storyItem.content[currentItem].time
-//
-//        //play video
-//        player = SimpleExoPlayer.Builder(requireContext())
-//            .build()
-//            .also { exoPlayer ->
-//                video_mode.player = exoPlayer
-//                val mediaItem = MediaItem.fromUri(storyItem.content[currentItem].src)
-//                exoPlayer.setMediaItem(mediaItem)
-//                exoPlayer.playWhenReady = true
-//                exoPlayer.seekTo(0, 0)
-//                exoPlayer.prepare()
-//
-//            }
-//    }
+    private fun displayVideo(currentItem: Result) {
+        if (isFirstLoad) {
+            storiesProgressView.setStoryDuration(50000)
+            storiesProgressView.startStories()
+            isFirstLoad = false
+        }
+        storiesProgressView.setStoryDuration(50000)
+        //make the other two views invisible
+        image_mode.visibility = View.INVISIBLE
+        text_mode_view.visibility = View.INVISIBLE
+
+        footer.visibility = View.VISIBLE
+
+        //upload duration time for notification bar
+        video_mode.visibility = View.VISIBLE
+
+        //story_description.text = storyItem.content[currentItem].description
+
+        story_name.text = currentItem.userViewModel.userName
+        val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
+        try {
+            val date = format.parse(currentItem.addedDateAndTime)
+            story_time.text = TimeAgo.getTimeAgo(date.time).toString()
+        } catch (e: ParseException) {
+            e.printStackTrace()
+        }
+
+        //play video
+        player = SimpleExoPlayer.Builder(requireContext())
+            .build()
+            .also { exoPlayer ->
+                video_mode.player = exoPlayer
+                val mediaItem = MediaItem.fromUri(currentItem.mediaURL)
+                exoPlayer.setMediaItem(mediaItem)
+                exoPlayer.playWhenReady = true
+                exoPlayer.seekTo(0, 0)
+                exoPlayer.prepare()
+
+            }
+    }
 
 
     //StoriesProgressView Methods
