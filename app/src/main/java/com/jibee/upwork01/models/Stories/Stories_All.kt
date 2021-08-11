@@ -10,7 +10,7 @@ data class Stories_All(
     @SerializedName("page")
     val page: Int,
     @SerializedName("results")
-    val results: List<Result>,
+    val results: ArrayList<Result>,
     @SerializedName("StatusCode")
     val statusCode: Int,
     @SerializedName("total_pages")

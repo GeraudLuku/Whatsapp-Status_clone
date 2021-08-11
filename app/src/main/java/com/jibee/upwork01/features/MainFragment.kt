@@ -24,10 +24,8 @@ import com.appexecutors.picker.utils.PickerOptions
 import com.jibee.upwork01.MainViewModel
 import com.jibee.upwork01.R
 import com.jibee.upwork01.adapters.StoriesAdapter
-import com.jibee.upwork01.models.Stories.QueryStory
+import com.jibee.upwork01.models.Stories.Result
 import com.jibee.upwork01.models.Stories.Stories_All
-import com.jibee.upwork01.models.Story
-import com.jibee.upwork01.repo.StoriesViewModel
 import com.jibee.upwork01.util.URIPathHelper
 import com.theartofdev.edmodo.cropper.CropImage
 import com.videotrimmer.library.utils.CompressOption
@@ -42,8 +40,9 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
 
     private lateinit var mainViewModel: MainViewModel
 
-    private var storyList: ArrayList<Stories_All> = ArrayList()
+    private val storyList: ArrayList<Stories_All> = ArrayList()
 
+    private lateinit var adapter: StoriesAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -64,6 +63,21 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
             Log.d("ActionBar", "Action Bar set")
         }
 
+        //init recyclerview
+        adapter = StoriesAdapter(storyList, this, requireContext())
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager =
+            LinearLayoutManager(view.context, LinearLayoutManager.VERTICAL, false)
+        recyclerView.setHasFixedSize(true)
+
+        //adding a divider
+        val dividerItemDecoration = DividerItemDecoration(
+            recyclerView.context,
+            LinearLayoutManager.VERTICAL
+        )
+        recyclerView.addItemDecoration(dividerItemDecoration)
+
+
         //configure nav controller
         navController = findNavController()
 
@@ -71,27 +85,37 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
         mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
 
         //listen to incoming story object
-        mainViewModel.storyObject?.observe(viewLifecycleOwner, Observer {
+        mainViewModel.storyObject.observe(viewLifecycleOwner, Observer {
+
+            //load stories and hide textview
+            emptyIndicator.visibility = View.GONE
+
+            val response = it
+            storyList.clear()
+
             when (it.statusCode) {
                 200 -> {
-                    storyList.clear()
-                    //load stories and hide textview
-                    emptyIndicator.visibility = View.GONE
-                    Log.d("retrofit-responce", "$it")
+                    //loop all results and get userId
+                    val ids = mutableSetOf<Int>()
+                    for (item in it.results) {
+                        ids.add(item.userId)
+                    }
 
-                    storyList.add(it)
-                    val adapter = StoriesAdapter(storyList, this,requireContext())
-                    recyclerView.adapter = adapter
-                    recyclerView.layoutManager =
-                        LinearLayoutManager(view.context, LinearLayoutManager.VERTICAL, false)
-                    recyclerView.setHasFixedSize(true)
+                    val userIDs = ids.toList() // [2 11 5]
 
-                    //adding a divider
-                    val dividerItemDecoration = DividerItemDecoration(
-                        recyclerView.context,
-                        LinearLayoutManager.VERTICAL
-                    )
-                    recyclerView.addItemDecoration(dividerItemDecoration)
+                    //iterate via it
+                    for (i in userIDs) {
+                        val itemList = ArrayList<Result>()
+                        for (item in response.results) {
+                            if (item.userId.equals(i)){
+                                itemList.add(item)
+                            }
+                        }
+                        //create a story_all object
+                        storyList.add(Stories_All(response.message,response.page,itemList,response.statusCode,response.totalPages,itemList.count()))
+                        adapter.notifyDataSetChanged()
+
+                    }
                 }
                 404 -> {
                     //no stories so show textview indicator

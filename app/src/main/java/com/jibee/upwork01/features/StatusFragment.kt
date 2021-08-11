@@ -15,9 +15,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.jibee.upwork01.MainViewModel
 import com.jibee.upwork01.R
-import com.jibee.upwork01.models.Src
 import com.jibee.upwork01.models.postStory.PostStory
-import com.jibee.upwork01.repo.StoriesViewModel
 import kotlinx.android.synthetic.main.fragment_status.*
 
 
@@ -63,13 +61,13 @@ class StatusFragment : Fragment() {
             mainViewModel.setStoryInfo(story)
 
             //create a src object
-            val newStatus = Src(
-                FirebaseAuth.getInstance().currentUser?.uid!!,
-                "text",
-                postText,
-                "12:30",
-                "no source"
-            )
+//            val newStatus = Src(
+//                FirebaseAuth.getInstance().currentUser?.uid!!,
+//                "text",
+//                postText,
+//                "12:30",
+//                "no source"
+//            )
             //add the status
 //            storiesViewModel.addStory(newStatus)
 //            Toast.makeText(requireContext(), "Adding Status....", Toast.LENGTH_LONG).show()

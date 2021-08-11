@@ -1,24 +1,34 @@
 package com.jibee.upwork01.features
 
+import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.ui.PlayerView
 import com.jibee.upwork01.R
 import com.jibee.upwork01.models.Stories.Result
 import com.jibee.upwork01.models.Stories.Stories_All
-import com.jibee.upwork01.models.Story
 import com.jibee.upwork01.util.TimeAgo
 import jp.shts.android.storiesprogressview.StoriesProgressView
-import kotlinx.android.synthetic.main.fragment_detail.*
 import kotlinx.android.synthetic.main.fragment_story_view.*
+import okhttp3.internal.Util
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -93,6 +103,10 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
                 //display image
                 displayImage(story)
             }
+            ".jpeg" -> {
+                //display image
+                displayImage(story)
+            }
             "mp4" -> {
                 //display video
                 displayVideo(story)
@@ -119,10 +133,36 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
         text_mode_view.visibility = View.INVISIBLE
         //show imageview
         image_mode.visibility = View.VISIBLE
+        glide_load.visibility = View.VISIBLE
         footer.visibility = View.VISIBLE
         //load image on imageview
         Glide.with(this)
             .load(currentItem.mediaURL)
+            .addListener(object : RequestListener<Drawable> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    Toast.makeText(requireContext(), e!!.localizedMessage, Toast.LENGTH_LONG).show()
+                    return false
+                }
+
+                override fun onResourceReady(
+                    resource: Drawable?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    dataSource: DataSource?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    //hide progressview and show load image
+                    glide_load.visibility = View.GONE
+                    return false
+                }
+
+            })
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .into(image_mode)
         //set description and other information
         story_name.text = currentItem.userViewModel.userName
@@ -170,6 +210,7 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
         storiesProgressView.setStoryDuration(50000)
         //make the other two views invisible
         image_mode.visibility = View.INVISIBLE
+        glide_load.visibility = View.INVISIBLE
         text_mode_view.visibility = View.INVISIBLE
 
         footer.visibility = View.VISIBLE
@@ -202,7 +243,6 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
             }
     }
 
-
     //StoriesProgressView Methods
     override fun onNext() {
         if (currentItem < storyItem.totalResults) {
@@ -222,4 +262,5 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
         currentItem = 0
         navController.popBackStack()
     }
+
 }

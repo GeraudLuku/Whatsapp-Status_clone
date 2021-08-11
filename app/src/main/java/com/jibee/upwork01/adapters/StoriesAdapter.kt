@@ -12,7 +12,6 @@ import com.bumptech.glide.Glide
 import com.devlomi.circularstatusview.CircularStatusView
 import com.jibee.upwork01.R
 import com.jibee.upwork01.models.Stories.Stories_All
-import com.jibee.upwork01.models.Story
 import com.jibee.upwork01.util.TimeAgo
 import java.text.ParseException
 import java.text.SimpleDateFormat

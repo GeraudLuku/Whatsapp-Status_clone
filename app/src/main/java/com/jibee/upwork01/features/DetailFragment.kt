@@ -19,12 +19,9 @@ import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.firebase.auth.FirebaseAuth
 import com.jibee.upwork01.MainViewModel
 import com.jibee.upwork01.R
-import com.jibee.upwork01.models.Src
 import com.jibee.upwork01.models.postStory.PostStory
-import com.jibee.upwork01.repo.StoriesViewModel
 import kotlinx.android.synthetic.main.fragment_detail.*
 import java.io.File
 import java.net.URLConnection
