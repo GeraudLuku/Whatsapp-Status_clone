@@ -37,22 +37,22 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="fitCenter"
-            tools:src="@drawable/tester"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/tester" />
 
         <ProgressBar
             android:id="@+id/glide_load"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="invisible"
-            app:layout_constraintStart_toStartOf="@id/image_mode"
+            app:layout_constraintBottom_toBottomOf="@id/image_mode"
             app:layout_constraintEnd_toEndOf="@id/image_mode"
-            app:layout_constraintTop_toTopOf="@id/image_mode"
-            app:layout_constraintBottom_toBottomOf="@id/image_mode"/>
+            app:layout_constraintStart_toStartOf="@id/image_mode"
+            app:layout_constraintTop_toTopOf="@id/image_mode" />
 
         <LinearLayout
             android:id="@+id/text_mode_view"
@@ -90,6 +90,16 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:use_controller="false" />
+
+        <ProgressBar
+            android:id="@+id/video_loadind"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@id/video_mode"
+            app:layout_constraintEnd_toEndOf="@id/video_mode"
+            app:layout_constraintStart_toStartOf="@id/video_mode"
+            app:layout_constraintTop_toTopOf="@id/video_mode" />
 
         <LinearLayout
             android:id="@+id/header"
@@ -198,9 +208,9 @@
             android:id="@+id/reply_footer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_marginBottom="5dp"
             android:gravity="center"
+            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 

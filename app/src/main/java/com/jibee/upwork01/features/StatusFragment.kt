@@ -12,7 +12,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.auth.FirebaseAuth
 import com.jibee.upwork01.MainViewModel
 import com.jibee.upwork01.R
 import com.jibee.upwork01.models.postStory.PostStory
