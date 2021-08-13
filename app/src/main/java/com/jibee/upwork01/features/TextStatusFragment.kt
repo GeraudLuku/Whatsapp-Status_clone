@@ -18,7 +18,7 @@ import com.jibee.upwork01.models.postStory.PostStory
 import kotlinx.android.synthetic.main.fragment_status.*
 
 
-class StatusFragment : Fragment() {
+class TextStatusFragment : Fragment() {
     private lateinit var navController: NavController
 
     private lateinit var mainViewModel: MainViewModel

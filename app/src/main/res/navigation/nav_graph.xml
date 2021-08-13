@@ -22,7 +22,7 @@
     </fragment>
     <fragment
         android:id="@+id/statusFragment"
-        android:name="com.jibee.upwork01.features.StatusFragment"
+        android:name="com.jibee.upwork01.features.TextStatusFragment"
         android:label="fragment_status"
         tools:layout="@layout/fragment_status" />
     <fragment

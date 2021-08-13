@@ -225,6 +225,10 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
     private var isDurationSet: Boolean = false //check if the video duration has been set
     private fun displayVideo(currentItem: Result) {
 
+        initExoplayer()
+
+        storiesProgressView.setStoryDuration(40000)
+
         //make the other two views invisible
         image_mode.visibility = View.INVISIBLE
         glide_load.visibility = View.INVISIBLE
@@ -275,8 +279,8 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
                     }
                     Player.STATE_ENDED -> {
                         //goto next story when video has ended
+                        releasePlayer()
                         storiesProgressView.skip()
-                        isDurationSet = false
                     }
                     Player.STATE_IDLE -> {
                     }
@@ -312,18 +316,8 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
     }
 
     private fun initExoplayer() {
-        //if there is a video in the file init exoPlayer
-        var isVideo = false
-        storyItem.results.forEach {
-            if (it.mimeType.equals("jpeg") || it.mimeType.equals(".jpeg")) {
-                //init exoplayer then leave function
-                isVideo = !isVideo
-            }
-        }
-        if (isVideo) {
-            player = SimpleExoPlayer.Builder(requireContext()).build()
-            video_mode.player = player
-        }
+        player = SimpleExoPlayer.Builder(requireContext()).build()
+        video_mode.player = player
     }
 
     //    private fun displayText(currentItem: Int) {
@@ -352,8 +346,8 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
 
     //StoriesProgressView Methods
     override fun onNext() {
-        storiesProgressView.pause()
         isDurationSet = false
+        releasePlayer()
         if (currentItem < storyItem.totalResults) {
             currentItem++
             loadNextMedia(currentItem)
@@ -361,8 +355,8 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
     }
 
     override fun onPrev() {
-        storiesProgressView.pause()
         isDurationSet = false
+        releasePlayer()
         if (currentItem > 0) {
             currentItem--
             loadNextMedia(currentItem)
@@ -371,6 +365,7 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
 
     override fun onComplete() {
         currentItem = 0
+        releasePlayer()
         navController.popBackStack()
     }
 

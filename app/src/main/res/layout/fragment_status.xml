@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="#008E7E"
     android:fitsSystemWindows="true"
-    tools:context=".features.StatusFragment">
+    tools:context=".features.TextStatusFragment">
 
     <ImageButton
         android:id="@+id/closeBtn"

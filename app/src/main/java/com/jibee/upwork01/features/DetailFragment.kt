@@ -92,7 +92,7 @@ class DetailFragment : Fragment() {
         }
 
         //listen to add story return
-        mainViewModel.postStoryResponse.observe(viewLifecycleOwner,Observer{
+        mainViewModel.postStoryResponse.observe(viewLifecycleOwner, Observer {
 
         })
 
@@ -135,7 +135,7 @@ class DetailFragment : Fragment() {
     }
 
 
-    fun loadImage(): Unit {
+    fun loadImage() {
         typeMedia = "image"
         //glide methods if its an image
         Glide.with(this)
@@ -143,14 +143,6 @@ class DetailFragment : Fragment() {
             .into(pictureView)
         //make imageview visible
         pictureView.visibility = View.VISIBLE
-    }
-
-    fun isImageFile(path: String?): Boolean {
-        path.let {
-            val mimeType = URLConnection.guessContentTypeFromName(it)
-            return mimeType != null && mimeType.startsWith("image")
-        }
-
     }
 
     fun getLastNCharsOfString(str: String, n: Int): String? {

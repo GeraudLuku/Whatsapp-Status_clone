@@ -102,13 +102,13 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
 
                 when (response.statusCode) {
                     200 -> {
-                        //loop all results and get userId
+                        //loop all results and get userIds
                         val ids = mutableSetOf<Int>()
                         for (item in response.results) {
                             ids.add(item.userId)
                         }
 
-                        val userIDs = ids.toList() // [2 11 5]
+                        val userIDs = ids.toList()
 
                         //iterate via it
                         for (i in userIDs) {
