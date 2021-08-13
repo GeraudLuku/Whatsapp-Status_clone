@@ -4,15 +4,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import com.jibee.upwork01.api.Resource
 import com.jibee.upwork01.models.Stories.QueryStory
 import com.jibee.upwork01.models.Stories.Stories_All
 import com.jibee.upwork01.models.postStory.PostStory
 import com.jibee.upwork01.repository.Repository
 
 class MainViewModel : ViewModel() {
-    private val _queryStory: MutableLiveData<QueryStory> = MutableLiveData()
     private val _postStory: MutableLiveData<PostStory> = MutableLiveData()
-    var storyObject: LiveData<Stories_All> = MutableLiveData()
+    var storyObject: LiveData<Resource<Stories_All>> = MutableLiveData()
 
 
     init {

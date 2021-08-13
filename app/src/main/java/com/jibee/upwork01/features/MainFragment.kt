@@ -87,45 +87,52 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
         //listen to incoming story object
         mainViewModel.storyObject.observe(viewLifecycleOwner, Observer {
 
-            //load stories and hide textview
-            emptyIndicator.visibility = View.GONE
-
-            val response = it
-            storyList.clear()
-
-            when (it.statusCode) {
-                200 -> {
-                    //loop all results and get userId
-                    val ids = mutableSetOf<Int>()
-                    for (item in it.results) {
-                        ids.add(item.userId)
-                    }
-
-                    val userIDs = ids.toList() // [2 11 5]
-
-                    //iterate via it
-                    for (i in userIDs) {
-                        val itemList = ArrayList<Result>()
-                        for (item in response.results) {
-                            if (item.userId.equals(i)){
-                                itemList.add(item)
-                            }
-                        }
-                        //create a story_all object
-                        storyList.add(Stories_All(response.message,response.page,itemList,response.statusCode,response.totalPages,itemList.count()))
-                        adapter.notifyDataSetChanged()
-
-                    }
-                }
-                404 -> {
-                    //no stories so show textview indicator
-                    emptyIndicator.visibility = View.VISIBLE
-                }
-                417 -> {
-                    //error: sessionToken incorrect
-                    Log.d("error-retrofit", "incorrect sessionToken")
-                }
+            //check if its a success or error
+            if (it.message != null){
+                println(it.message)
+            }else {
+                println(it.data)
             }
+
+            //load stories and hide textview
+//            emptyIndicator.visibility = View.GONE
+//
+//            val response = it
+//            storyList.clear()
+//
+//            when (it.statusCode) {
+//                200 -> {
+//                    //loop all results and get userId
+//                    val ids = mutableSetOf<Int>()
+//                    for (item in it.results) {
+//                        ids.add(item.userId)
+//                    }
+//
+//                    val userIDs = ids.toList() // [2 11 5]
+//
+//                    //iterate via it
+//                    for (i in userIDs) {
+//                        val itemList = ArrayList<Result>()
+//                        for (item in response.results) {
+//                            if (item.userId.equals(i)){
+//                                itemList.add(item)
+//                            }
+//                        }
+//                        //create a story_all object
+//                        storyList.add(Stories_All(response.message,response.page,itemList,response.statusCode,response.totalPages,itemList.count()))
+//                        adapter.notifyDataSetChanged()
+//
+//                    }
+//                }
+//                404 -> {
+//                    //no stories so show textview indicator
+//                    emptyIndicator.visibility = View.VISIBLE
+//                }
+//                417 -> {
+//                    //error: sessionToken incorrect
+//                    Log.d("error-retrofit", "incorrect sessionToken")
+//                }
+//            }
         })
 
 

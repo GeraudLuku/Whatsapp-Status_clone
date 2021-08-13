@@ -2,6 +2,7 @@ package com.jibee.upwork01.repository
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import com.jibee.upwork01.api.Resource
 import com.jibee.upwork01.api.RetrofitBuilder
 import com.jibee.upwork01.models.Stories.Result
 import com.jibee.upwork01.models.Stories.Stories_All
@@ -10,6 +11,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import retrofit2.Call
+import java.lang.Exception
 import java.util.*
 import kotlin.Comparator
 
@@ -22,22 +24,32 @@ object Repository {
         userID: Int = 11,
         pageNumber: Int = 0,
         currentUserID: Int = 11
-    ): LiveData<Stories_All> {
+    ): LiveData<Resource<Stories_All>> {
         job = Job()
 
-        return object : LiveData<Stories_All>() {
+        return object : LiveData<Resource<Stories_All>>() {
             override fun onActive() {
                 super.onActive()
                 job?.let { job ->
                     CoroutineScope(IO + job).launch {
-                        val storiesObject = RetrofitBuilder.apiService.GetAllStories(
-                            userID,
-                            pageNumber,
-                            currentUserID
-                        )
-                        withContext(Main) {
-                            value = storiesObject
-                            job.complete()
+                        val storiesObject: Stories_All
+                        try {
+                            storiesObject = RetrofitBuilder.apiService.GetAllStories(
+                                userID,
+                                pageNumber,
+                                currentUserID
+                            )
+                            withContext(Main) {
+                                value = Resource.Success(storiesObject)
+                                job.complete()
+                            }
+                        } catch (t: Throwable) {
+                            //get retrofit exceptions
+                            Log.d("Network-Error", "Network Error")
+                            withContext(Main) {
+                                value = Resource.Error(t.localizedMessage!!, null)
+                                job.complete()
+                            }
                         }
                     }
                 }
