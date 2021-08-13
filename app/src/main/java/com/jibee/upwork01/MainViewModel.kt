@@ -12,17 +12,25 @@ import com.jibee.upwork01.repository.Repository
 
 class MainViewModel : ViewModel() {
     private val _postStory: MutableLiveData<PostStory> = MutableLiveData()
-    var storyObject: LiveData<Resource<Stories_All>> = MutableLiveData()
+    private val _storyKey: MutableLiveData<String> = MutableLiveData()
+
+
+    //Get All Stories query
+    fun setStoryKey(key: String) {
+        val update = key
+        _storyKey.value = update
+    }
+
+    val storyObject = Transformations.switchMap(_storyKey){
+        Repository.getAllStories()
+    }
+
 
 
     init {
-        getAllStories()
+        setStoryKey("test")
     }
 
-    //get all stories
-    fun getAllStories() {
-        storyObject = Repository.getAllStories()
-    }
 
     val postStoryResponse = Transformations
         .switchMap(_postStory) {

@@ -88,51 +88,62 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
         mainViewModel.storyObject.observe(viewLifecycleOwner, Observer {
 
             //check if its a success or error
-            if (it.message != null){
-                println(it.message)
-            }else {
-                println(it.data)
-            }
+            if (it.message != null) {
+                //show retry error on screen with possibility to retry
+                retryIndicator.visibility = View.VISIBLE
+            } else {
 
-            //load stories and hide textview
-//            emptyIndicator.visibility = View.GONE
-//
-//            val response = it
-//            storyList.clear()
-//
-//            when (it.statusCode) {
-//                200 -> {
-//                    //loop all results and get userId
-//                    val ids = mutableSetOf<Int>()
-//                    for (item in it.results) {
-//                        ids.add(item.userId)
-//                    }
-//
-//                    val userIDs = ids.toList() // [2 11 5]
-//
-//                    //iterate via it
-//                    for (i in userIDs) {
-//                        val itemList = ArrayList<Result>()
-//                        for (item in response.results) {
-//                            if (item.userId.equals(i)){
-//                                itemList.add(item)
-//                            }
-//                        }
-//                        //create a story_all object
-//                        storyList.add(Stories_All(response.message,response.page,itemList,response.statusCode,response.totalPages,itemList.count()))
-//                        adapter.notifyDataSetChanged()
-//
-//                    }
-//                }
-//                404 -> {
-//                    //no stories so show textview indicator
-//                    emptyIndicator.visibility = View.VISIBLE
-//                }
-//                417 -> {
-//                    //error: sessionToken incorrect
-//                    Log.d("error-retrofit", "incorrect sessionToken")
-//                }
-//            }
+                //load stories and hide textview
+                emptyIndicator.visibility = View.INVISIBLE
+                retryIndicator.visibility = View.INVISIBLE
+
+                val response = it.data!!
+                storyList.clear()
+
+                when (response.statusCode) {
+                    200 -> {
+                        //loop all results and get userId
+                        val ids = mutableSetOf<Int>()
+                        for (item in response.results) {
+                            ids.add(item.userId)
+                        }
+
+                        val userIDs = ids.toList() // [2 11 5]
+
+                        //iterate via it
+                        for (i in userIDs) {
+                            val itemList = ArrayList<Result>()
+                            for (item in response.results) {
+                                if (item.userId.equals(i)) {
+                                    itemList.add(item)
+                                }
+                            }
+                            //create a story_all object
+                            storyList.add(
+                                Stories_All(
+                                    response.message,
+                                    response.page,
+                                    itemList,
+                                    response.statusCode,
+                                    response.totalPages,
+                                    itemList.count()
+                                )
+                            )
+                            adapter.notifyDataSetChanged()
+
+                        }
+                    }
+                    404 -> {
+                        //no stories so show textview indicator
+                        emptyIndicator.visibility = View.VISIBLE
+                    }
+                    417 -> {
+                        //error: sessionToken incorrect
+                        Log.d("error-retrofit", "incorrect sessionToken")
+                        retryIndicator.visibility = View.VISIBLE
+                    }
+                }
+            }
         })
 
 
@@ -153,6 +164,11 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
         //onclick listener for status text image button
         status.setOnClickListener {
             navController.navigate(R.id.action_mainFragment_to_statusFragment)
+        }
+
+        //onClick of retry
+        retryIndicator.setOnClickListener {
+            mainViewModel.setStoryKey("test")
         }
 
 

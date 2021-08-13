@@ -2,6 +2,7 @@ package com.jibee.upwork01.repository
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.jibee.upwork01.api.Resource
 import com.jibee.upwork01.api.RetrofitBuilder
 import com.jibee.upwork01.models.Stories.Result
@@ -24,10 +25,10 @@ object Repository {
         userID: Int = 11,
         pageNumber: Int = 0,
         currentUserID: Int = 11
-    ): LiveData<Resource<Stories_All>> {
+    ): MutableLiveData<Resource<Stories_All>> {
         job = Job()
 
-        return object : LiveData<Resource<Stories_All>>() {
+        return object : MutableLiveData<Resource<Stories_All>>() {
             override fun onActive() {
                 super.onActive()
                 job?.let { job ->
