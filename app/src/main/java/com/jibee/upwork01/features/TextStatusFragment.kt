@@ -3,11 +3,14 @@ package com.jibee.upwork01.features
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -35,11 +38,46 @@ class TextStatusFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
+        //hide keyboard if anywhere else is pressed
+        view.setOnClickListener {
+            view.let { activity?.hideKeyboard(it) }
+        }
+
         //configure nav controller
         navController = findNavController()
 
         //subscribe to the view model
         mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
+
+        //listen to post story callback
+        mainViewModel.postStoryResponse.observe(viewLifecycleOwner) {
+            if (it.message != null) {
+                println(it.message)
+                progress_view.visibility = View.INVISIBLE
+                Toast.makeText(requireContext(), "Failed to Add Story", Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(requireContext(), "Story Added", Toast.LENGTH_LONG).show()
+                navController.popBackStack()
+            }
+        }
+
+        // show/hide post button if edittext is empty or not
+        statusTxt.addTextChangedListener(object : TextWatcher {
+
+            override fun afterTextChanged(s: Editable?) {
+                if (s!!.isEmpty()) {
+                    postBtn.visibility = View.INVISIBLE
+                } else {
+                    postBtn.visibility = View.VISIBLE
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+        })
 
         //close fragment when X is pressed
         closeBtn.setOnClickListener {
@@ -49,31 +87,20 @@ class TextStatusFragment : Fragment() {
 
         //get text when done is pressed
         postBtn.setOnClickListener {
-            val postText = statusTxt.text.toString()
+            val postText = statusTxt.text.toString().trim()
 
             //push status to the database
             val story = PostStory(
-                getCurrentDateTime().toString("yyyy/MM/dd HH:mm:ss"),
+                getCurrentDateTime().toString("yyyy-MM-dd HH:mm:ss"),
                 mediaURL = postText,
-                mimeType = "text" //set media first so we know if its just plain text or a file
+                mimeType = ".txt", //set media first so we know if its just plain text or a file
+                dateTimeForDb = ""
             )
             mainViewModel.setStoryInfo(story)
 
-            //create a src object
-//            val newStatus = Src(
-//                FirebaseAuth.getInstance().currentUser?.uid!!,
-//                "text",
-//                postText,
-//                "12:30",
-//                "no source"
-//            )
-            //add the status
-//            storiesViewModel.addStory(newStatus)
-//            Toast.makeText(requireContext(), "Adding Status....", Toast.LENGTH_LONG).show()
-
-
+            Toast.makeText(requireContext(), "Adding Status....", Toast.LENGTH_LONG).show()
+            progress_view.visibility = View.VISIBLE
             view.let { activity?.hideKeyboard(it) }
-            navController.popBackStack()
         }
     }
 

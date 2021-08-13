@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.jibee.upwork01.api.Resource
-import com.jibee.upwork01.models.Stories.QueryStory
+import com.jibee.upwork01.models.Stories.Result
 import com.jibee.upwork01.models.Stories.Stories_All
 import com.jibee.upwork01.models.postStory.PostStory
 import com.jibee.upwork01.repository.Repository
@@ -13,19 +13,18 @@ import com.jibee.upwork01.repository.Repository
 class MainViewModel : ViewModel() {
     private val _postStory: MutableLiveData<PostStory> = MutableLiveData()
     private val _storyKey: MutableLiveData<String> = MutableLiveData()
+    private val _storyList: LiveData<ArrayList<Stories_All>> = MutableLiveData()
 
 
     //Get All Stories query
     fun setStoryKey(key: String) {
-        val update = key
-        _storyKey.value = update
+        _storyKey.value = key
     }
 
-    val storyObject = Transformations.switchMap(_storyKey){
+    val storyObject = Transformations.switchMap(_storyKey) {
         Repository.getAllStories()
+
     }
-
-
 
     init {
         setStoryKey("test")
@@ -38,10 +37,9 @@ class MainViewModel : ViewModel() {
         }
 
     fun setStoryInfo(postStory: PostStory) {
-        val update = postStory
         if (_postStory.value == postStory)
             return
-        _postStory.value = update
+        _postStory.value = postStory
     }
 
 

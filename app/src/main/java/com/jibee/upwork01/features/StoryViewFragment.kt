@@ -96,12 +96,8 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
         //get story item from navigation
         storyItem = storyArgs.storyItem
 
-        initExoplayer()
-
         //init StoriesProgressView
-        storiesProgressView = view.findViewById(R.id.stories_progress_view)
-        storiesProgressView.setStoriesCount(storyItem.totalResults)
-        storiesProgressView.setStoriesListener(this)
+        initializeStoriesProgress()
 
         //set profile image
         Glide.with(requireContext())
@@ -130,6 +126,12 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
 
     }
 
+    private fun initializeStoriesProgress() {
+        storiesProgressView = stories_progress_view
+        storiesProgressView.setStoriesCount(storyItem.totalResults)
+        storiesProgressView.setStoriesListener(this)
+    }
+
     private fun loadNextMedia(currentItem: Int) {
         val story = storyItem.results[currentItem]
         when (story.mimeType) {
@@ -153,6 +155,7 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
     }
 
     private fun displayImage(currentItem: Result) {
+
         //upload duration time for notification bar
         storiesProgressView.setStoryDuration(10000)
 

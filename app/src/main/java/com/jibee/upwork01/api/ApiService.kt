@@ -8,7 +8,6 @@ import retrofit2.http.*
 interface ApiService {
 
     //get stories from api
-    //GetFanFeedsShortVideoStory?userID=2&pageNumber=0&currentUserID=2
     @GET("GetFanFeedsShortVideoStory")
     suspend fun GetAllStories(
         @Query("userID") userId: Int = 11, //default value
@@ -19,6 +18,6 @@ interface ApiService {
 
     //add story to api
     @POST("AddShortVideoStory")
-    suspend fun AddStory(@Body postStory: PostStory): Call<String>
+    suspend fun AddStory(@Body postStory: PostStory): String
 
 }

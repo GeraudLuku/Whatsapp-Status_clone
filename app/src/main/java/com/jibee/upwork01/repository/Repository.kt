@@ -1,20 +1,22 @@
 package com.jibee.upwork01.repository
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.google.android.gms.tasks.Continuation
+import com.google.android.gms.tasks.Task
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.UploadTask
+import com.google.firebase.storage.ktx.storage
 import com.jibee.upwork01.api.Resource
 import com.jibee.upwork01.api.RetrofitBuilder
-import com.jibee.upwork01.models.Stories.Result
 import com.jibee.upwork01.models.Stories.Stories_All
 import com.jibee.upwork01.models.postStory.PostStory
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import retrofit2.Call
-import java.lang.Exception
 import java.util.*
-import kotlin.Comparator
 
 object Repository {
 
@@ -60,19 +62,69 @@ object Repository {
 
 
     //post a story
-    fun addStory(postStory: PostStory): LiveData<Call<String>> {
+    fun addStory(postStory: PostStory): LiveData<Resource<String>> {
         job = Job()
 
-        return object : LiveData<Call<String>>() {
+        return object : LiveData<Resource<String>>() {
             override fun onActive() {
                 super.onActive()
                 job?.let { job ->
                     CoroutineScope(IO + job).launch {
-                        val responce = RetrofitBuilder.apiService.AddStory(postStory)
-                        Log.d("Post-response", "$responce")
-                        withContext(Main) {
-                            //print response message
+                        var response = ""
+                        try {
+                            //upload media to firebase if its text just add directly
+
+                            //check if its text or media
+                            if (postStory.mimeType.equals(".txt")) {
+                                //it is a text status
+                                response = RetrofitBuilder.apiService.AddStory(postStory)
+                            } else {
+                                //it upload media to Firebase Storage
+                                val storageRef = Firebase.storage.reference
+                                val ref =
+                                    storageRef.child("uploads/" + UUID.randomUUID().toString())
+                                val uploadTask = ref.putFile(Uri.parse(postStory.mediaURL))
+
+                                val urlTask =
+                                    uploadTask.continueWithTask(Continuation<UploadTask.TaskSnapshot, Task<Uri>> { task ->
+                                        if (!task.isSuccessful) {
+                                            task.exception?.let {
+                                                throw it
+                                            }
+                                        }
+                                        return@Continuation ref.downloadUrl
+                                    }).addOnCompleteListener { task ->
+                                        if (task.isSuccessful) {
+                                            val downloadUri = task.result
+                                            //now get the url of the media and add it to the post object
+                                            launch {
+                                                postStory.mediaURL = downloadUri.toString()
+                                                response =
+                                                    RetrofitBuilder.apiService.AddStory(postStory)
+                                            }
+                                        } else {
+                                            task.exception?.let {
+                                                throw it
+                                            }
+                                        }
+                                    }.addOnFailureListener {
+                                        throw it
+                                    }
+
+                                withContext(Main) {
+                                    //print response message
+                                    value = Resource.Success(response)
+                                    job.complete()
+                                }
+                            }
+                        } catch (t: Throwable) {
+                            //catch error
+                            withContext(Main) {
+                                value = Resource.Error(t.localizedMessage!!, null)
+                                job.complete()
+                            }
                         }
+
                     }
                 }
             }

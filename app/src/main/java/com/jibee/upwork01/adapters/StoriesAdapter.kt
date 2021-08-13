@@ -67,7 +67,7 @@ class StoriesAdapter(
             val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
             try {
                 val date = format.parse(story.results[story.totalResults - 1].addedDateAndTime)
-                time.text = TimeAgo.getTimeAgo(date.time).toString()
+                time.text = TimeAgo.getTimeAgo(date!!.time).toString()
             } catch (e: ParseException) {
                 e.printStackTrace()
             }

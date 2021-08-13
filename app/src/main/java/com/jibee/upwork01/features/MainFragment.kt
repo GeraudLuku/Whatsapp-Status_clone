@@ -26,12 +26,18 @@ import com.jibee.upwork01.R
 import com.jibee.upwork01.adapters.StoriesAdapter
 import com.jibee.upwork01.models.Stories.Result
 import com.jibee.upwork01.models.Stories.Stories_All
+import com.jibee.upwork01.util.TimeAgo
 import com.jibee.upwork01.util.URIPathHelper
 import com.theartofdev.edmodo.cropper.CropImage
 import com.videotrimmer.library.utils.CompressOption
 import com.videotrimmer.library.utils.TrimVideo
 import kotlinx.android.synthetic.main.fragment_main.*
 import java.net.URLConnection
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.Comparator
+import kotlin.collections.ArrayList
 
 
 class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
@@ -91,9 +97,10 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
             if (it.message != null) {
                 //show retry error on screen with possibility to retry
                 retryIndicator.visibility = View.VISIBLE
+                Log.d("Network-Error", it.message)
             } else {
 
-                //load stories and hide textview
+                //load stories and hide text view
                 emptyIndicator.visibility = View.INVISIBLE
                 retryIndicator.visibility = View.INVISIBLE
 
@@ -103,35 +110,7 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
                 when (response.statusCode) {
                     200 -> {
                         //loop all results and get userIds
-                        val ids = mutableSetOf<Int>()
-                        for (item in response.results) {
-                            ids.add(item.userId)
-                        }
-
-                        val userIDs = ids.toList()
-
-                        //iterate via it
-                        for (i in userIDs) {
-                            val itemList = ArrayList<Result>()
-                            for (item in response.results) {
-                                if (item.userId.equals(i)) {
-                                    itemList.add(item)
-                                }
-                            }
-                            //create a story_all object
-                            storyList.add(
-                                Stories_All(
-                                    response.message,
-                                    response.page,
-                                    itemList,
-                                    response.statusCode,
-                                    response.totalPages,
-                                    itemList.count()
-                                )
-                            )
-                            adapter.notifyDataSetChanged()
-
-                        }
+                        setupDataToView(response)
                     }
                     404 -> {
                         //no stories so show textview indicator
@@ -172,6 +151,46 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
         }
 
 
+    }
+
+    private fun setupDataToView(response: Stories_All) {
+        val ids = mutableSetOf<Int>()
+        for (item in response.results) {
+            ids.add(item.userId)
+        }
+
+        val userIDs = ids.toList()
+
+        //iterate via it
+        var index = 0
+        for (i in userIDs) {
+            val itemList = ArrayList<Result>()
+            for (item in response.results) {
+                if (item.userId.equals(i)) {
+                    itemList.add(item)
+                }
+            }
+            //create a story_all object
+            storyList.add(
+                Stories_All(
+                    response.message,
+                    response.page,
+                    itemList,
+                    response.statusCode,
+                    index,
+                    itemList.count()
+                )
+            )
+            //sort them in DESC order of time added
+            storyList.sortWith(Comparator { o1: Stories_All, o2: Stories_All ->
+                o2.totalPages.compareTo(o1.totalPages)
+            })
+
+            index++
+
+            adapter.notifyDataSetChanged()
+
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -237,7 +256,7 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
 
     fun isImageFile(path: String?): Boolean {
         val mimeType: String = URLConnection.guessContentTypeFromName(path)
-        return mimeType != null && mimeType.startsWith("image")
+        return mimeType.startsWith("image")
     }
 
     override fun onItemCLicked(story: Stories_All) {

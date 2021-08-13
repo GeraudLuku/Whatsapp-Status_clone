@@ -52,14 +52,29 @@ class DetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        //hide keyboard if anywhere else is pressed
+        view.setOnClickListener {
+            view.let { activity?.hideKeyboard(it) }
+        }
+
         //configure nav controller and get uri from intent
         navController = findNavController()
 
         //subscribe to the view model
         mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
 
-        Log.d("MediaUri1", args.mediaUri)
         mediaUri = args.mediaUri
+
+        //listen to add story return
+        mainViewModel.postStoryResponse.observe(viewLifecycleOwner, Observer {
+            if (it.message != null) {
+                println(it.message)
+                Toast.makeText(requireContext(), "Failed to Add Story", Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(requireContext(), "Story Added", Toast.LENGTH_LONG).show()
+                navController.popBackStack()
+            }
+        })
 
         //image: file:///data/user/0/com.jibee.upwork01/cache/cropped394261694738506970.jpg
         //video file:///storage/emulated/0/Android/data/com.jibee.upwork01/files/Download/trimmed_video_2021_7_8_13_47_50.mp4
@@ -82,26 +97,14 @@ class DetailFragment : Fragment() {
             val story = PostStory(
                 getCurrentDateTime().toString("yyyy/MM/dd HH:mm:ss"),
                 mediaURL = mediaUri,
-                mimeType = "media" //set media first so we know if its just plain text or a file
+                mimeType = typeMedia,
+                dateTimeForDb = ""
             )
             mainViewModel.setStoryInfo(story)
-//            storiesViewModel.addStory(item)
-//            Toast.makeText(requireContext(), "Adding Story....", Toast.LENGTH_LONG).show()
-//            view.let { activity?.hideKeyboard(it) }
-//            navController.popBackStack()
+            view.let { activity?.hideKeyboard(it) }
         }
 
-        //listen to add story return
-        mainViewModel.postStoryResponse.observe(viewLifecycleOwner, Observer {
 
-        })
-
-    }
-
-    fun Context.hideKeyboard(view: View) {
-        val inputMethodManager =
-            getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
 
@@ -124,7 +127,7 @@ class DetailFragment : Fragment() {
 
 
     fun playVideo() {
-        typeMedia = "video"
+        typeMedia = ".mp4"
         //exoplayer methods if its a video
         //show exoplayer
         videoView.visibility = View.VISIBLE
@@ -136,7 +139,7 @@ class DetailFragment : Fragment() {
 
 
     fun loadImage() {
-        typeMedia = "image"
+        typeMedia = ".jpeg"
         //glide methods if its an image
         Glide.with(this)
             .load(Uri.parse(args.mediaUri))
@@ -145,7 +148,7 @@ class DetailFragment : Fragment() {
         pictureView.visibility = View.VISIBLE
     }
 
-    fun getLastNCharsOfString(str: String, n: Int): String? {
+    fun getLastNCharsOfString(str: String, n: Int): String {
         var lastnChars = str
         if (lastnChars.length > n) {
             lastnChars = lastnChars.substring(lastnChars.length - n, lastnChars.length)
@@ -154,6 +157,8 @@ class DetailFragment : Fragment() {
     }
 }
 
+
+//Extra Methods
 fun Date.toString(format: String, locale: Locale = Locale.getDefault()): String {
     val formatter = SimpleDateFormat(format, locale)
     return formatter.format(this)
@@ -161,4 +166,10 @@ fun Date.toString(format: String, locale: Locale = Locale.getDefault()): String 
 
 fun getCurrentDateTime(): Date {
     return Calendar.getInstance().time
+}
+
+fun Context.hideKeyboard(view: View) {
+    val inputMethodManager =
+        getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+    inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
 }
