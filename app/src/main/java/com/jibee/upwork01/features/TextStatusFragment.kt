@@ -26,6 +26,8 @@ class TextStatusFragment : Fragment() {
 
     private lateinit var mainViewModel: MainViewModel
 
+    private var listen: Boolean = false
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -51,13 +53,25 @@ class TextStatusFragment : Fragment() {
 
         //listen to post story callback
         mainViewModel.postStoryResponse.observe(viewLifecycleOwner) {
-            if (it.message != null) {
+
+            if (listen) {
                 println(it.message)
-                progress_view.visibility = View.INVISIBLE
-                Toast.makeText(requireContext(), "Failed to Add Story", Toast.LENGTH_LONG).show()
-            } else {
-                Toast.makeText(requireContext(), "Story Added", Toast.LENGTH_LONG).show()
-                navController.popBackStack()
+
+                if (it.message != null) {
+                    listen = false
+                    progress_view.visibility = View.INVISIBLE
+                    Toast.makeText(requireContext(), "Failed to Add Story", Toast.LENGTH_LONG)
+                        .show()
+                } else {
+                    listen = false
+                    println(it.message)
+                    progress_view.visibility = View.INVISIBLE
+                    Toast.makeText(requireContext(), "Story Added", Toast.LENGTH_SHORT).show()
+                    //refresh story list
+                    mainViewModel.setStoryKey("test")
+                    //go back to main fragment
+                    navController.popBackStack()
+                }
             }
         }
 
@@ -93,12 +107,12 @@ class TextStatusFragment : Fragment() {
             val story = PostStory(
                 getCurrentDateTime().toString("yyyy-MM-dd HH:mm:ss"),
                 mediaURL = postText,
-                mimeType = ".txt", //set media first so we know if its just plain text or a file
-                dateTimeForDb = ""
+                mimeType = ".txt" //set media first so we know if its just plain text or a file
             )
             mainViewModel.setStoryInfo(story)
+            listen = true
 
-            Toast.makeText(requireContext(), "Adding Status....", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "Adding Story....", Toast.LENGTH_SHORT).show()
             progress_view.visibility = View.VISIBLE
             view.let { activity?.hideKeyboard(it) }
         }

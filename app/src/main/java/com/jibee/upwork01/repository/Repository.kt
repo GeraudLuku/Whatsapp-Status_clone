@@ -62,7 +62,7 @@ object Repository {
 
 
     //post a story
-    fun addStory(postStory: PostStory): LiveData<Resource<String>> {
+    fun addStory(postStory: PostStory, userID: Int = 11): LiveData<Resource<String>> {
         job = Job()
 
         return object : LiveData<Resource<String>>() {
@@ -70,55 +70,17 @@ object Repository {
                 super.onActive()
                 job?.let { job ->
                     CoroutineScope(IO + job).launch {
-                        var response = ""
                         try {
-                            //upload media to firebase if its text just add directly
-
-                            //check if its text or media
-                            if (postStory.mimeType.equals(".txt")) {
-                                //it is a text status
-                                response = RetrofitBuilder.apiService.AddStory(postStory)
-                            } else {
-                                //it upload media to Firebase Storage
-                                val storageRef = Firebase.storage.reference
-                                val ref =
-                                    storageRef.child("uploads/" + UUID.randomUUID().toString())
-                                val uploadTask = ref.putFile(Uri.parse(postStory.mediaURL))
-
-                                val urlTask =
-                                    uploadTask.continueWithTask(Continuation<UploadTask.TaskSnapshot, Task<Uri>> { task ->
-                                        if (!task.isSuccessful) {
-                                            task.exception?.let {
-                                                throw it
-                                            }
-                                        }
-                                        return@Continuation ref.downloadUrl
-                                    }).addOnCompleteListener { task ->
-                                        if (task.isSuccessful) {
-                                            val downloadUri = task.result
-                                            //now get the url of the media and add it to the post object
-                                            launch {
-                                                postStory.mediaURL = downloadUri.toString()
-                                                response =
-                                                    RetrofitBuilder.apiService.AddStory(postStory)
-                                            }
-                                        } else {
-                                            task.exception?.let {
-                                                throw it
-                                            }
-                                        }
-                                    }.addOnFailureListener {
-                                        throw it
-                                    }
-
-                                withContext(Main) {
-                                    //print response message
-                                    value = Resource.Success(response)
-                                    job.complete()
-                                }
+                            //it is a text status
+                            RetrofitBuilder.apiService.AddStory(postStory, userID)
+                            withContext(Main) {
+                                value = Resource.Success(postStory.toString())
+                                job.complete()
                             }
+
                         } catch (t: Throwable) {
                             //catch error
+                            Log.d("Network-Error", t.localizedMessage)
                             withContext(Main) {
                                 value = Resource.Error(t.localizedMessage!!, null)
                                 job.complete()
@@ -128,6 +90,23 @@ object Repository {
                     }
                 }
             }
+        }
+    }
+
+
+    //update story seen status
+    fun updateStorySeenStatus(shortVideoStoryId: Int, status: Boolean, userId: Int) {
+        CoroutineScope(IO).launch {
+            try {
+                RetrofitBuilder.apiService.UpdateSeenStatus(
+                    shortVideoStoryId,
+                    status,
+                    userId
+                )
+            } catch (t: Throwable) {
+                Log.d("Update-Error", t.localizedMessage)
+            }
+
         }
     }
 

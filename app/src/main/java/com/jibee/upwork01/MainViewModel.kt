@@ -42,6 +42,14 @@ class MainViewModel : ViewModel() {
         _postStory.value = postStory
     }
 
+    //update seen status of story
+    fun updateSeenStatus(storyId: Int, status: Boolean, userId: Int) =
+        Repository.updateStorySeenStatus(
+            storyId,
+            status,
+            userId
+        )
+
 
     fun cancelJobs() = Repository.cancelJobs()
 }

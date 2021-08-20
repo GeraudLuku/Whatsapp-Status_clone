@@ -47,8 +47,10 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
     private lateinit var mainViewModel: MainViewModel
 
     private val storyList: ArrayList<Stories_All> = ArrayList()
+    private val storyListSeen: ArrayList<Stories_All> = ArrayList()
 
     private lateinit var adapter: StoriesAdapter
+    private lateinit var adapterSeen: StoriesAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -69,10 +71,25 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
             Log.d("ActionBar", "Action Bar set")
         }
 
-        //init recyclerview
+        val mPickerOptions =
+            PickerOptions.init().apply {
+                maxCount = 1                        //maximum number of images/videos to be picked
+                //maxVideoDuration = 30               //maximum duration for video capture in seconds
+                allowFrontCamera = true             //allow front camera use
+                excludeVideos = false               //exclude or include video functionalities
+            }
+
+        //init recyclerviews
         adapter = StoriesAdapter(storyList, this, requireContext())
+        adapterSeen = StoriesAdapter(storyListSeen, this, requireContext())
+
         recyclerView.adapter = adapter
         recyclerView.layoutManager =
+            LinearLayoutManager(view.context, LinearLayoutManager.VERTICAL, false)
+        recyclerView.setHasFixedSize(true)
+
+        recyclerView_viewed.adapter = adapterSeen
+        recyclerView_viewed.layoutManager =
             LinearLayoutManager(view.context, LinearLayoutManager.VERTICAL, false)
         recyclerView.setHasFixedSize(true)
 
@@ -82,6 +99,7 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
             LinearLayoutManager.VERTICAL
         )
         recyclerView.addItemDecoration(dividerItemDecoration)
+        recyclerView_viewed.addItemDecoration(dividerItemDecoration)
 
 
         //configure nav controller
@@ -126,15 +144,6 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
         })
 
 
-        val mPickerOptions =
-            PickerOptions.init().apply {
-                maxCount = 1                        //maximum number of images/videos to be picked
-                //maxVideoDuration = 30               //maximum duration for video capture in seconds
-                allowFrontCamera = true             //allow front camera use
-                excludeVideos = false               //exclude or include video functionalities
-            }
-
-
         //onclick listener for the camera image button
         cameraBtn.setOnClickListener {
             Picker.startPicker(this, mPickerOptions)    //this -> context of Activity or Fragment
@@ -154,6 +163,9 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
     }
 
     private fun setupDataToView(response: Stories_All) {
+
+        //we have to separate seen and un seen status
+
         val ids = mutableSetOf<Int>()
         for (item in response.results) {
             ids.add(item.userId)
@@ -164,31 +176,60 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
         //iterate via it
         var index = 0
         for (i in userIDs) {
+
             val itemList = ArrayList<Result>()
+            val itemListSeen = ArrayList<Result>()
             for (item in response.results) {
-                if (item.userId.equals(i)) {
+                if (item.userId.equals(i) && !item.seenStatus) {
+                    //add to unseen arraylist
                     itemList.add(item)
+                } else if (item.userId.equals(i) && item.seenStatus) {
+                    //add to seen arraylist
+                    itemListSeen.add(item)
                 }
             }
-            //create a story_all object
-            storyList.add(
-                Stories_All(
-                    response.message,
-                    response.page,
-                    itemList,
-                    response.statusCode,
-                    index,
-                    itemList.count()
+
+            //check if any of them are not null first
+            if (itemList.size > 0) {
+                //create a story_all object
+                storyList.add(
+                    Stories_All(
+                        response.message,
+                        response.page,
+                        itemList,
+                        response.statusCode,
+                        index,
+                        itemList.count()
+                    )
                 )
-            )
-            //sort them in DESC order of time added
-            storyList.sortWith(Comparator { o1: Stories_All, o2: Stories_All ->
-                o2.totalPages.compareTo(o1.totalPages)
-            })
+                //sort them in DESC order of time added
+                storyList.sortWith(Comparator { o1: Stories_All, o2: Stories_All ->
+                    o2.totalPages.compareTo(o1.totalPages)
+                })
+                adapter.notifyDataSetChanged()
+            }
+
+            if (itemListSeen.size > 0) {
+                //create a story_all object
+                storyListSeen.add(
+                    Stories_All(
+                        response.message,
+                        response.page,
+                        itemListSeen,
+                        response.statusCode,
+                        index,
+                        itemListSeen.count()
+                    )
+                )
+                //sort them in DESC order of time added
+                storyListSeen.sortWith(Comparator { o1: Stories_All, o2: Stories_All ->
+                    o2.totalPages.compareTo(o1.totalPages)
+                })
+                adapterSeen.notifyDataSetChanged()
+            }
 
             index++
 
-            adapter.notifyDataSetChanged()
 
         }
     }
@@ -249,7 +290,8 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
             val uri = Uri.parse(TrimVideo.getTrimmedVideoPath(data))
             Log.d("Video-Trim", "Trimmed path:: $uri")
             //send uri to Details fragment
-            val action = MainFragmentDirections.actionMainFragmentToDetailFragment(uri.toString())
+            val action =
+                MainFragmentDirections.actionMainFragmentToDetailFragment(uri.toString())
             navController.navigate(action)
         }
     }

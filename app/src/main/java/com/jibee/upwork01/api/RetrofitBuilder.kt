@@ -1,5 +1,6 @@
 package com.jibee.upwork01.api
 
+import android.util.Log
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -10,7 +11,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitBuilder {
     const val BASE_URL = "http://staging.footballbuzz.net/api/v1/"
-    const val TOKEN = "bb6f1609-ba54-4c1c-9294-bde5ecb94bcb"
+    const val TOKEN = "4774b093-2b9c-48e4-888d-2559983c32c0"
 
     //create Logger
     private val logger = HttpLoggingInterceptor().apply {
@@ -21,6 +22,8 @@ object RetrofitBuilder {
     val headerInterceptor = object : Interceptor {
         override fun intercept(chain: Interceptor.Chain): Response {
             var request = chain.request()
+
+            Log.d("Respose-Method", request.method) // [GET, POST]
 
             request = request.newBuilder()
                 .addHeader("content-type", "application/json")

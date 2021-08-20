@@ -11,6 +11,7 @@ import android.view.View.OnTouchListener
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -24,6 +25,7 @@ import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
+import com.jibee.upwork01.MainViewModel
 import com.jibee.upwork01.R
 import com.jibee.upwork01.models.Stories.Result
 import com.jibee.upwork01.models.Stories.Stories_All
@@ -39,6 +41,7 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
 
     private lateinit var navController: NavController
     private val storyArgs: StoryViewFragmentArgs by navArgs()
+    private lateinit var mainViewModel: MainViewModel
 
     private lateinit var storyItem: Stories_All
     private lateinit var storiesProgressView: StoriesProgressView
@@ -57,6 +60,7 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
     @SuppressLint("ClickableViewAccessibility")
     private val onTouchListener: OnTouchListener = OnTouchListener { view, event ->
         val action = event.action
+        val story = storyItem.results[currentItem]
         when (action) {
             MotionEvent.ACTION_DOWN -> {
                 storiesProgressView.pause()
@@ -69,9 +73,11 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
             MotionEvent.ACTION_UP -> {
                 storiesProgressView.resume()
                 val now = System.currentTimeMillis()
-                //show back the views
-                header.visibility = View.VISIBLE
-                footer.visibility = View.VISIBLE
+                if (story.mimeType != ".txt" || story.mimeType != "text") {
+                    //show back the views
+                    header.visibility = View.VISIBLE
+                    footer.visibility = View.VISIBLE
+                }
                 return@OnTouchListener 500L < now - pressTime
             }
         }
@@ -92,6 +98,9 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
 
         //initialize navcontroller
         navController = findNavController()
+
+        //subscribe to the view model
+        mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
 
         //get story item from navigation
         storyItem = storyArgs.storyItem
@@ -118,6 +127,7 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
 
         //back button
         backBtn.setOnClickListener {
+            mainViewModel.setStoryKey("test")
             navController.popBackStack()
         }
 
@@ -149,7 +159,11 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
             }
             "text" -> {
                 //display text
-                //displayText(currentItem)
+                displayText(story)
+            }
+            ".txt" -> {
+                //display text
+                displayText(story)
             }
         }
     }
@@ -323,34 +337,48 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
         video_mode.player = player
     }
 
-    //    private fun displayText(currentItem: Int) {
-//        if (isFirstLoad) {
-//            //upload duration time for notification bar
-//            storiesProgressView.setStoryDuration(6000)
-//            storiesProgressView.startStories()
-//            isFirstLoad = false
-//        }
-//        //upload duration time for notification bar
-//        storiesProgressView.setStoryDuration(6000)
-//        //make the other two views invisible
-//        video_mode.visibility = View.INVISIBLE
-//        image_mode.visibility = View.INVISIBLE
-//        footer.visibility = View.INVISIBLE
-//        //show imageview
-//
-//        //set random color on the text view backgroung like whartsapp
-//        text_mode_view.visibility = View.VISIBLE
-//        //set text on TextView
-//        text_mode.text = storyItem.content[currentItem].description
-//        //set other informations
-//        story_name.text = storyItem.content[currentItem].uid.substring(0, 5)
-//        story_time.text = storyItem.content[currentItem].time
-//    }
+    private fun displayText(currentItem: Result) {
+        //upload duration time for notification bar
+        storiesProgressView.setStoryDuration(6000)
+
+        //make the other two views invisible
+        video_mode.visibility = View.INVISIBLE
+        video_loadind.visibility = View.INVISIBLE
+        image_mode.visibility = View.INVISIBLE
+        glide_load.visibility = View.INVISIBLE
+        footer.visibility = View.INVISIBLE
+        video_error.visibility = View.INVISIBLE
+
+
+        //set text on text view
+        text_mode_view.visibility = View.VISIBLE
+        text_mode.text = currentItem.mediaURL
+
+        //set other information
+        //set other related information
+        story_name.text = currentItem.userViewModel.userName
+        val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
+        try {
+            val date = format.parse(currentItem.addedDateAndTime)
+            story_time.text = TimeAgo.getTimeAgo(date!!.time).toString()
+        } catch (e: ParseException) {
+            e.printStackTrace()
+        }
+        //story_description.text = storyItem.content[currentItem].description
+    }
 
     //StoriesProgressView Methods
     override fun onNext() {
+        val story = storyItem.results[currentItem]
         isDurationSet = false
         releasePlayer()
+        //update seen status of story
+        if (!story.seenStatus)
+            mainViewModel.updateSeenStatus(
+                story.iD,
+                true,
+                11
+            )
         if (currentItem < storyItem.totalResults) {
             currentItem++
             loadNextMedia(currentItem)
@@ -367,8 +395,17 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
     }
 
     override fun onComplete() {
+        val story = storyItem.results[currentItem]
+        //update seen status of story
+        if (!story.seenStatus)
+            mainViewModel.updateSeenStatus(
+                story.iD,
+                true,
+                11
+            )
         currentItem = 0
         releasePlayer()
+        mainViewModel.setStoryKey("test")
         navController.popBackStack()
     }
 

@@ -32,7 +32,7 @@ public class TimeAgo {
         if (diff < MINUTE_MILLIS) {
             return "Just now";
         } else if (diff < 2 * MINUTE_MILLIS) {
-            return "A minute ago";
+            return "a minute ago";
         } else if (diff < 50 * MINUTE_MILLIS) {
             return diff / MINUTE_MILLIS + " minutes ago";
         } else if (diff < 90 * MINUTE_MILLIS) {

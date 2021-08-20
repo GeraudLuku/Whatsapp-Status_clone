@@ -56,9 +56,14 @@ class StoriesAdapter(
         //init item click listener
         fun initialize(story: Stories_All, action: OnItemClickedListener, position: Int) {
 
-            //set status count
-            indicator.setPortionsCount(story.totalResults)
-            indicator.setPortionsColor(getColor(itemView.context, R.color.custom1))
+            //set status count //check if its seen or unseen status
+            if (story.results[0].seenStatus) {
+                indicator.setPortionsCount(story.totalResults)
+                indicator.setPortionsColor(getColor(itemView.context, R.color.custom2))
+            }else {
+                indicator.setPortionsCount(story.totalResults)
+                indicator.setPortionsColor(getColor(itemView.context, R.color.custom1))
+            }
 
             //set name
             name.text = story.results[0].userViewModel.userName

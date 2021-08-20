@@ -18,6 +18,16 @@ interface ApiService {
 
     //add story to api
     @POST("AddShortVideoStory")
-    suspend fun AddStory(@Body postStory: PostStory): String
+    suspend fun AddStory(
+        @Body postStory: PostStory,
+        @Query("UserID") userId: Int
+    )
+
+    @POST("UpdateStorySeenStatus")
+    suspend fun UpdateSeenStatus(
+        @Query("ShortVideoStoryId") shortVideoStoryId: Int,
+        @Query("Status") status: Boolean,
+        @Query("UserID") userId: Int
+    )
 
 }
