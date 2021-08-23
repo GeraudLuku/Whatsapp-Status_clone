@@ -99,7 +99,7 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
         //initialize navcontroller
         navController = findNavController()
 
-        //subscribe to the view model
+        //subscribe to the view modell
         mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
 
         //get story item from navigation
