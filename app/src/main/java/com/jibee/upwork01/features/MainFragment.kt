@@ -124,6 +124,7 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
 
                 val response = it.data!!
                 storyList.clear()
+                storyListSeen.clear()
 
                 when (response.statusCode) {
                     200 -> {
