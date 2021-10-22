@@ -21,5 +21,5 @@ data class PostStory(
     @SerializedName("Shares")
     val shares: Int = 0,
     @SerializedName("UserId")
-    val userId: Int = 11
+    val userId: Int = 13
 )

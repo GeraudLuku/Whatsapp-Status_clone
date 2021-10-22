@@ -341,6 +341,13 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
         //upload duration time for notification bar
         storiesProgressView.setStoryDuration(6000)
 
+        if (isFirstLoad) {
+            storiesProgressView.startStories()
+            isFirstLoad = false
+        } else {
+            storiesProgressView.resume()
+        }
+
         //make the other two views invisible
         video_mode.visibility = View.INVISIBLE
         video_loadind.visibility = View.INVISIBLE

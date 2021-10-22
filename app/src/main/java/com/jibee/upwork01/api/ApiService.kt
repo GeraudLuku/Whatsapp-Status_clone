@@ -10,9 +10,9 @@ interface ApiService {
     //get stories from api
     @GET("GetFanFeedsShortVideoStory")
     suspend fun GetAllStories(
-        @Query("userID") userId: Int = 11, //default value
+        @Query("userID") userId: Int = 13, //default value
         @Query("pageNumber") pageNumber: Int = 0, //default value
-        @Query("currentUserID") currentUser: Int = 11, //default value
+        @Query("currentUserID") currentUser: Int = 13, //default value
     ): Stories_All
 
 
@@ -20,7 +20,7 @@ interface ApiService {
     @POST("AddShortVideoStory")
     suspend fun AddStory(
         @Body postStory: PostStory,
-        @Query("UserID") userId: Int
+        @Query("UserID") userId: Int = 13
     )
 
     @POST("UpdateStorySeenStatus")

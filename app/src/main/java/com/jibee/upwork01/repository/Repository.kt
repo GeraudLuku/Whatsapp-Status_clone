@@ -24,9 +24,9 @@ object Repository {
 
     //get stories
     fun getAllStories(
-        userID: Int = 11,
+        userID: Int = 13,
         pageNumber: Int = 0,
-        currentUserID: Int = 11
+        currentUserID: Int = 13
     ): MutableLiveData<Resource<Stories_All>> {
         job = Job()
 
@@ -62,7 +62,7 @@ object Repository {
 
 
     //post a story
-    fun addStory(postStory: PostStory, userID: Int = 11): LiveData<Resource<String>> {
+    fun addStory(postStory: PostStory, userID: Int = 13): LiveData<Resource<String>> {
         job = Job()
 
         return object : LiveData<Resource<String>>() {
