@@ -1,14 +1,8 @@
 package com.jibee.upwork01.repository
 
-import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.google.android.gms.tasks.Continuation
-import com.google.android.gms.tasks.Task
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.UploadTask
-import com.google.firebase.storage.ktx.storage
 import com.jibee.upwork01.api.Resource
 import com.jibee.upwork01.api.RetrofitBuilder
 import com.jibee.upwork01.models.Stories.Stories_All
@@ -16,11 +10,44 @@ import com.jibee.upwork01.models.postStory.PostStory
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import java.util.*
 
 object Repository {
 
     var job: CompletableJob? = null
+
+
+    //get stories
+    fun getStoriesByUID(
+        userID: Int = 13
+    ): MutableLiveData<Resource<Stories_All>> {
+        job = Job()
+
+        return object : MutableLiveData<Resource<Stories_All>>() {
+            override fun onActive() {
+                super.onActive()
+                job?.let { job ->
+                    CoroutineScope(IO + job).launch {
+                        val storiesObject: Stories_All
+                        try {
+                            storiesObject =
+                                RetrofitBuilder.apiService.GetStoriesByUID(userId = userID)
+                            withContext(Main) {
+                                value = Resource.Success(storiesObject)
+                                job.complete()
+                            }
+                        } catch (t: Throwable) {
+                            //get retrofit exceptions
+                            Log.d("Network-Error", "Network Error")
+                            withContext(Main) {
+                                value = Resource.Error(t.localizedMessage!!, null)
+                                job.complete()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     //get stories
     fun getAllStories(

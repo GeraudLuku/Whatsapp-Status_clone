@@ -13,6 +13,7 @@ import com.jibee.upwork01.repository.Repository
 class MainViewModel : ViewModel() {
     private val _postStory: MutableLiveData<PostStory> = MutableLiveData()
     private val _storyKey: MutableLiveData<String> = MutableLiveData()
+    private val _userStoryKey: MutableLiveData<String> = MutableLiveData()
     private val _storyList: LiveData<ArrayList<Stories_All>> = MutableLiveData()
 
 
@@ -20,14 +21,21 @@ class MainViewModel : ViewModel() {
     fun setStoryKey(key: String) {
         _storyKey.value = key
     }
+    fun setUserStoryKey(key: String) {
+        _userStoryKey.value = key
+    }
 
     val storyObject = Transformations.switchMap(_storyKey) {
         Repository.getAllStories()
+    }
 
+    val userStoryObject = Transformations.switchMap(_userStoryKey) {
+        Repository.getAllStories()
     }
 
     init {
         setStoryKey("test")
+        setUserStoryKey("test")
     }
 
 

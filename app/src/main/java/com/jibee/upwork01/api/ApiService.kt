@@ -15,6 +15,12 @@ interface ApiService {
         @Query("currentUserID") currentUser: Int = 13, //default value
     ): Stories_All
 
+    //get stories by UID from api
+    @GET("GetShortVideoStorysByUserID")
+    suspend fun GetStoriesByUID(
+        @Query("userID") userId: Int = 13, //default value
+    ): Stories_All
+
 
     //add story to api
     @POST("AddShortVideoStory")

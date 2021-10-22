@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -26,18 +27,12 @@ import com.jibee.upwork01.R
 import com.jibee.upwork01.adapters.StoriesAdapter
 import com.jibee.upwork01.models.Stories.Result
 import com.jibee.upwork01.models.Stories.Stories_All
-import com.jibee.upwork01.util.TimeAgo
 import com.jibee.upwork01.util.URIPathHelper
 import com.theartofdev.edmodo.cropper.CropImage
 import com.videotrimmer.library.utils.CompressOption
 import com.videotrimmer.library.utils.TrimVideo
 import kotlinx.android.synthetic.main.fragment_main.*
 import java.net.URLConnection
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.*
-import kotlin.Comparator
-import kotlin.collections.ArrayList
 
 
 class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
@@ -107,6 +102,22 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
 
         //subscribe to the view model
         mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
+
+        //listen to incoming current user stories
+        mainViewModel.userStoryObject.observe(viewLifecycleOwner, Observer {
+            //check if its a success or error
+            it.data?.run {
+                val stories = this
+                circular_status_view.setPortionsCount(stories.totalResults)
+                circular_status_view.setPortionsColor(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        R.color.custom2
+                    )
+                )
+                add_story_indicator.text = "View my stories"
+            }
+        })
 
         //listen to incoming story object
         mainViewModel.storyObject.observe(viewLifecycleOwner, Observer {
