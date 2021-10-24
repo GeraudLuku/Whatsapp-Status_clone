@@ -1,36 +1,35 @@
 package com.jibee.upwork01
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
-import com.jibee.upwork01.api.Resource
-import com.jibee.upwork01.models.Stories.Result
+import android.app.Application
+import androidx.lifecycle.*
 import com.jibee.upwork01.models.Stories.Stories_All
 import com.jibee.upwork01.models.postStory.PostStory
 import com.jibee.upwork01.repository.Repository
 
-class MainViewModel : ViewModel() {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
+
     private val _postStory: MutableLiveData<PostStory> = MutableLiveData()
     private val _storyKey: MutableLiveData<String> = MutableLiveData()
     private val _userStoryKey: MutableLiveData<String> = MutableLiveData()
     private val _storyList: LiveData<ArrayList<Stories_All>> = MutableLiveData()
+
+    private val repository = Repository(application)
+
+    val currentUserStories = Transformations.switchMap(_userStoryKey) {
+        repository.getCurrentUserStory().asLiveData()
+    }
+    val friendsStories = Transformations.switchMap(_storyKey) {
+        repository.getAllFriendsStories().asLiveData()
+    }
 
 
     //Get All Stories query
     fun setStoryKey(key: String) {
         _storyKey.value = key
     }
+
     fun setUserStoryKey(key: String) {
         _userStoryKey.value = key
-    }
-
-    val storyObject = Transformations.switchMap(_storyKey) {
-        Repository.getAllStories()
-    }
-
-    val userStoryObject = Transformations.switchMap(_userStoryKey) {
-        Repository.getAllStories()
     }
 
     init {
@@ -41,7 +40,7 @@ class MainViewModel : ViewModel() {
 
     val postStoryResponse = Transformations
         .switchMap(_postStory) {
-            Repository.addStory(it)
+            repository.addStory(it)
         }
 
     fun setStoryInfo(postStory: PostStory) {
@@ -51,13 +50,12 @@ class MainViewModel : ViewModel() {
     }
 
     //update seen status of story
-    fun updateSeenStatus(storyId: Int, status: Boolean, userId: Int) =
-        Repository.updateStorySeenStatus(
+    fun updateSeenStatus(storyId: Int, status: Boolean) =
+        repository.updateStorySeenStatus(
             storyId,
-            status,
-            userId
+            status
         )
 
 
-    fun cancelJobs() = Repository.cancelJobs()
+    fun cancelJobs() = repository.cancelJobs()
 }

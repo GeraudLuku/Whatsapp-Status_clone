@@ -55,16 +55,16 @@ class TextStatusFragment : Fragment() {
         mainViewModel.postStoryResponse.observe(viewLifecycleOwner) {
 
             if (listen) {
-                println(it.message)
+                println(it.error?.localizedMessage)
 
-                if (it.message != null) {
+                if (it.error?.localizedMessage != null) {
                     listen = false
                     progress_view.visibility = View.INVISIBLE
                     Toast.makeText(requireContext(), "Failed to Add Story", Toast.LENGTH_LONG)
                         .show()
                 } else {
                     listen = false
-                    println(it.message)
+                    println(it.error?.localizedMessage)
                     progress_view.visibility = View.INVISIBLE
                     Toast.makeText(requireContext(), "Story Added", Toast.LENGTH_SHORT).show()
                     //refresh story list

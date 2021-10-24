@@ -12,7 +12,6 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -22,11 +21,14 @@ import com.appexecutors.picker.Picker
 import com.appexecutors.picker.Picker.Companion.PICKED_MEDIA_LIST
 import com.appexecutors.picker.Picker.Companion.REQUEST_CODE_PICKER
 import com.appexecutors.picker.utils.PickerOptions
+import com.bumptech.glide.Glide
+import com.google.android.material.snackbar.Snackbar
 import com.jibee.upwork01.MainViewModel
 import com.jibee.upwork01.R
 import com.jibee.upwork01.adapters.StoriesAdapter
 import com.jibee.upwork01.models.Stories.Result
 import com.jibee.upwork01.models.Stories.Stories_All
+import com.jibee.upwork01.util.Resource
 import com.jibee.upwork01.util.URIPathHelper
 import com.theartofdev.edmodo.cropper.CropImage
 import com.videotrimmer.library.utils.CompressOption
@@ -62,30 +64,32 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
         if (activity is AppCompatActivity) {
             setHasOptionsMenu(true)
             (activity as AppCompatActivity).setSupportActionBar(toolbar)
-
-            Log.d("ActionBar", "Action Bar set")
         }
 
-        val mPickerOptions =
-            PickerOptions.init().apply {
-                maxCount = 1                        //maximum number of images/videos to be picked
-                //maxVideoDuration = 30               //maximum duration for video capture in seconds
-                allowFrontCamera = true             //allow front camera use
-                excludeVideos = false               //exclude or include video functionalities
-            }
+        //configure nav controller
+        navController = findNavController()
 
-        //init recyclerviews
+        //subscribe to the view model
+        mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
+
+        initializeAdapters()
+        registerObservers()
+        setListeners()
+    }
+
+    private fun initializeAdapters() {
+        //init recycler views
         adapter = StoriesAdapter(storyList, this, requireContext())
         adapterSeen = StoriesAdapter(storyListSeen, this, requireContext())
 
         recyclerView.adapter = adapter
         recyclerView.layoutManager =
-            LinearLayoutManager(view.context, LinearLayoutManager.VERTICAL, false)
+            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         recyclerView.setHasFixedSize(true)
 
         recyclerView_viewed.adapter = adapterSeen
         recyclerView_viewed.layoutManager =
-            LinearLayoutManager(view.context, LinearLayoutManager.VERTICAL, false)
+            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         recyclerView.setHasFixedSize(true)
 
         //adding a divider
@@ -95,49 +99,123 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
         )
         recyclerView.addItemDecoration(dividerItemDecoration)
         recyclerView_viewed.addItemDecoration(dividerItemDecoration)
+    }
 
-
-        //configure nav controller
-        navController = findNavController()
-
-        //subscribe to the view model
-        mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
-
-        //listen to incoming current user stories
-        mainViewModel.userStoryObject.observe(viewLifecycleOwner, Observer {
-            //check if its a success or error
-            it.data?.run {
-                val stories = this
-                circular_status_view.setPortionsCount(stories.totalResults)
-                circular_status_view.setPortionsColor(
-                    ContextCompat.getColor(
-                        requireContext(),
-                        R.color.custom2
-                    )
-                )
-                add_story_indicator.text = "View my stories"
+    private fun setListeners() {
+        //onclick listener for the camera image button
+        val mPickerOptions =
+            PickerOptions.init().apply {
+                maxCount = 1                        //maximum number of images/videos to be picked
+                //maxVideoDuration = 30               //maximum duration for video capture in seconds
+                allowFrontCamera = true             //allow front camera use
+                excludeVideos = false               //exclude or include video functionalities
             }
-        })
+        cameraBtn.setOnClickListener {
+            Picker.startPicker(
+                requireActivity(),
+                mPickerOptions
+            )    //this -> context of Activity or Fragment
+        }
+
+        //onclick listener for status text image button
+        status.setOnClickListener {
+            navController.navigate(R.id.action_mainFragment_to_statusFragment)
+        }
+
+        //onClick of retry
+        retryIndicator.setOnClickListener {
+            mainViewModel.setStoryKey("test")
+        }
+
+        //on click of user story retry
+        retryUserStoryIndicator.setOnClickListener {
+            mainViewModel.setUserStoryKey("test")
+        }
+
+    }
+
+    private fun registerObservers() {
+        //listen to incoming current user stories
+        mainViewModel.currentUserStories.observe(viewLifecycleOwner) { result ->
+
+            if (result is Resource.Error) {
+                Snackbar.make(requireView(), "You are Offline", Snackbar.LENGTH_LONG).show()
+                retryUserStoryIndicator.visibility = View.VISIBLE
+            } else {
+                retryUserStoryIndicator.visibility = View.INVISIBLE
+
+                val response = result?.data
+                storyList.clear()
+                storyListSeen.clear()
+
+                when (response?.statusCode) {
+                    200 -> {
+                        //data available
+                        circular_status_view.setPortionsCount(response.totalResults)
+                        circular_status_view.setPortionsColor(
+                            ContextCompat.getColor(
+                                requireContext(),
+                                R.color.custom2
+                            )
+                        )
+                        Glide.with(requireView())
+                            .load(response.results[0].userViewModel.profilePhoto)
+                            .into(profile_image)
+
+                        add_story_indicator.text = "View my stories"
+
+                        //show user stories onclick of the profile image
+                        profile_image.setOnClickListener {
+                            val action =
+                                MainFragmentDirections.actionMainFragmentToStoryViewFragment(
+                                    Stories_All(
+                                        response.message,
+                                        response.page,
+                                        response.results,
+                                        response.statusCode,
+                                        response.totalPages,
+                                        response.totalResults
+                                    )
+                                )
+                            navController.navigate(action)
+                        }
+
+                    }
+                    417 -> {
+                        //error: sessionToken incorrect
+                        retryUserStoryIndicator.visibility = View.VISIBLE
+                    }
+                }
+
+                val stories = result.data
+                stories?.run {
+                    circular_status_view.setPortionsCount(this.totalResults)
+                    circular_status_view.setPortionsColor(
+                        ContextCompat.getColor(
+                            requireContext(),
+                            R.color.custom2
+                        )
+                    )
+                    add_story_indicator.text = "View my stories"
+                }
+            }
+        }
 
         //listen to incoming story object
-        mainViewModel.storyObject.observe(viewLifecycleOwner, Observer {
-
-            //check if its a success or error
-            if (it.message != null) {
-                //show retry error on screen with possibility to retry
-                retryIndicator.visibility = View.VISIBLE
-                Log.d("Network-Error", it.message)
+        mainViewModel.friendsStories.observe(viewLifecycleOwner) { result ->
+            if (result is Resource.Error) {
+                Snackbar.make(requireView(), "You are Offline", Snackbar.LENGTH_LONG).show()
             } else {
 
                 //load stories and hide text view
                 emptyIndicator.visibility = View.INVISIBLE
                 retryIndicator.visibility = View.INVISIBLE
 
-                val response = it.data!!
+                val response = result?.data
                 storyList.clear()
                 storyListSeen.clear()
 
-                when (response.statusCode) {
+                when (response?.statusCode) {
                     200 -> {
                         //loop all results and get userIds
                         setupDataToView(response)
@@ -153,24 +231,7 @@ class MainFragment : Fragment(), StoriesAdapter.OnItemClickedListener {
                     }
                 }
             }
-        })
-
-
-        //onclick listener for the camera image button
-        cameraBtn.setOnClickListener {
-            Picker.startPicker(this, mPickerOptions)    //this -> context of Activity or Fragment
         }
-
-        //onclick listener for status text image button
-        status.setOnClickListener {
-            navController.navigate(R.id.action_mainFragment_to_statusFragment)
-        }
-
-        //onClick of retry
-        retryIndicator.setOnClickListener {
-            mainViewModel.setStoryKey("test")
-        }
-
 
     }
 

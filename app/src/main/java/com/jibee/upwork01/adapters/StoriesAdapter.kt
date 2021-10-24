@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat.getColor
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.devlomi.circularstatusview.CircularStatusView
@@ -60,7 +61,7 @@ class StoriesAdapter(
             if (story.results[0].seenStatus) {
                 indicator.setPortionsCount(story.totalResults)
                 indicator.setPortionsColor(getColor(itemView.context, R.color.custom2))
-            }else {
+            } else {
                 indicator.setPortionsCount(story.totalResults)
                 indicator.setPortionsColor(getColor(itemView.context, R.color.custom1))
             }
@@ -91,7 +92,6 @@ class StoriesAdapter(
         }
 
     }
-
     interface OnItemClickedListener {
         fun onItemCLicked(story: Stories_All)
     }

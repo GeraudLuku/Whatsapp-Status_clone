@@ -1,9 +1,12 @@
 package com.jibee.upwork01.api
 
 import com.jibee.upwork01.models.Stories.Stories_All
+import com.jibee.upwork01.models.Stories.UserStory
 import com.jibee.upwork01.models.postStory.PostStory
-import retrofit2.Call
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface ApiService {
 
@@ -19,7 +22,9 @@ interface ApiService {
     @GET("GetShortVideoStorysByUserID")
     suspend fun GetStoriesByUID(
         @Query("userID") userId: Int = 13, //default value
-    ): Stories_All
+        @Query("pageNumber") pageNumber: Int = 0, //default value
+        @Query("currentUserID") currentUser: Int = 13, //default value
+    ): UserStory
 
 
     //add story to api

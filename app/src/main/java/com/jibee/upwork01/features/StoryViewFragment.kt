@@ -304,19 +304,19 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
                 }
             }
 
-            override fun onPlayerError(error: ExoPlaybackException) {
-                super.onPlayerError(error)
-                storiesProgressView.pause()
-                video_loadind.visibility = View.INVISIBLE
-                video_error.visibility = View.VISIBLE
-                Toast.makeText(
-                    requireContext(),
-                    "Exoplayer-error: ${error.localizedMessage}",
-                    Toast.LENGTH_SHORT
-                ).show()
-                //show error image on video view
-
-            }
+//            override fun onPlayerError(error: ExoPlaybackException) {
+//                super.onPlayerError(error)
+//                storiesProgressView.pause()
+//                video_loadind.visibility = View.INVISIBLE
+//                video_error.visibility = View.VISIBLE
+//                Toast.makeText(
+//                    requireContext(),
+//                    "Exoplayer-error: ${error.localizedMessage}",
+//                    Toast.LENGTH_SHORT
+//                ).show()
+//                //show error image on video view
+//
+//            }
 
         })
 
@@ -383,8 +383,7 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
         if (!story.seenStatus)
             mainViewModel.updateSeenStatus(
                 story.iD,
-                true,
-                11
+                true
             )
         if (currentItem < storyItem.totalResults) {
             currentItem++
@@ -407,8 +406,7 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
         if (!story.seenStatus)
             mainViewModel.updateSeenStatus(
                 story.iD,
-                true,
-                11
+                true
             )
         currentItem = 0
         releasePlayer()

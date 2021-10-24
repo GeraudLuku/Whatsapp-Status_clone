@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitBuilder {
     const val BASE_URL = "http://staging.footballbuzz.net/api/v1/"
-    const val TOKEN = "22c012b5-1f62-48df-a817-3b47eb6594f5"
+    const val TOKEN = "c6cd811a-af3a-4ea5-8509-c12484c302d6"
 
     //create Logger
     private val logger = HttpLoggingInterceptor().apply {
