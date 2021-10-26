@@ -53,9 +53,11 @@ class StoryAdapter : ListAdapter<Stories, StoryAdapter.StoriesViewHolder>(DiffCa
                 name.text = stories.results[0].userViewModel.userName
 
                 //set time
-//                time.text =
-//                    TimeAgo.getTimeAgo(stories.results[stories.totalResults - 1].getCreatedTime())
-//                        .toString()
+                time.text =
+                    TimeAgo.getTimeAgo(
+                        stories.results.get(stories.results.size - 1).getCreatedTime()
+                    )
+                        .toString()
 
                 //last status image will be the users profile picture
                 Glide.with(binding.root)
