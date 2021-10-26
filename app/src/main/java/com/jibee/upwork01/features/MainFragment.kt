@@ -74,36 +74,49 @@ class MainFragment : Fragment(R.layout.fragment_main), StoryAdapter.OnItemClicke
         }
 
 
-        viewModel.userStories.observe(viewLifecycleOwner) { result ->
+        viewModel.userStories.observe(viewLifecycleOwner) {
+            val result = it.data
             binding.apply {
-                result.data?.run {
-                    circularStatusView.setPortionsCount(totalResults)
-                    circularStatusView.setPortionsColor(
-                        ContextCompat.getColor(
-                            requireContext(),
-                            R.color.custom2
-                        )
-                    )
-                    Glide.with(requireView())
-                        .load(results[0].userViewModel.profilePhoto)
-                        .into(profile_image)
+                result?.run {
 
-                    add_story_indicator.text = "View my stories"
+                    if (stories.isNotEmpty()) {
 
-                    userStatus.setOnClickListener {
-                        val action = MainFragmentDirections.actionMainFragmentToStoryViewFragment(
-                            Stories(
-                                id, message, page, results, statusCode, totalPages, totalResults
+                        circularStatusView.setPortionsCount(stories.size)
+                        circularStatusView.setPortionsColor(
+                            ContextCompat.getColor(
+                                requireContext(),
+                                R.color.custom2
                             )
                         )
-                        navController.navigate(action)
+                        Glide.with(requireView())
+                            .load(stories[0].userViewModel.profilePhoto)
+                            .into(profile_image)
+
+                        add_story_indicator.text = "View my stories"
+
+                        userStatus.setOnClickListener {
+                            val action =
+                                MainFragmentDirections.actionMainFragmentToStoryViewFragment(
+                                    Stories(
+                                        id,
+                                        message,
+                                        page,
+                                        stories,
+                                        statusCode,
+                                        totalPages,
+                                        totalResults
+                                    )
+                                )
+                            navController.navigate(action)
+                        }
+
                     }
 
                 }
             }
 
             retryUserStoryIndicator.isVisible =
-                result is Resource.Error && result.data?.results.isNullOrEmpty()
+                it is Resource.Error && result?.results.isNullOrEmpty()
         }
 
         viewModel.friendsStories.observe(viewLifecycleOwner) { results ->
@@ -115,9 +128,7 @@ class MainFragment : Fragment(R.layout.fragment_main), StoryAdapter.OnItemClicke
             storyListSeen.clear()
 
             //local stories object
-            val stories = results
-
-            stories.data?.forEach { story ->
+            results.data?.forEach { story ->
                 if (story.seen)
                     storyListSeen.add(story)
                 else

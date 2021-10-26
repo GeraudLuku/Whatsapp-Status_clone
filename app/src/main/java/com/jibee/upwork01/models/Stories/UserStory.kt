@@ -14,11 +14,19 @@ data class UserStory(
     @SerializedName("page")
     val page: Int,
     @SerializedName("results")
-    val results: List<Result>,
+    var results: List<Result>,
     @SerializedName("StatusCode")
     val statusCode: Int,
     @SerializedName("total_pages")
     val totalPages: Int,
     @SerializedName("total_results")
     val totalResults: Int
-) : Serializable
+) : Serializable {
+
+    val stories: List<Result>
+        get() {
+            return results.filter {
+                !it.isExpired
+            }
+        }
+}

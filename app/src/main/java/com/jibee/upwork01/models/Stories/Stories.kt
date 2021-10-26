@@ -23,4 +23,13 @@ data class Stories(
     @SerializedName("total_results")
     val totalResults: Int,
     val seen: Boolean = true
-) : Serializable
+) : Serializable {
+
+    val stories: List<Result>
+        get() {
+            return results.filter {
+                !it.isExpired
+            }
+        }
+
+}
