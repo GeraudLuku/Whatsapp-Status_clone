@@ -85,9 +85,22 @@ class Repository(private val context: Context) {
                 }
             }
 
-            //check if any of them are not null first
-            if (itemList.size > 0) {
-                //create a stories object
+            //if the user has both seen stories and unSeen stories,
+            //merge all of them in one object
+            if (itemList.size > 0 && itemListSeen.size > 0) {
+                stories.add(
+                    Stories(
+                        message = response.message,
+                        page = response.page,
+                        results = merge(itemList, itemListSeen),
+                        statusCode = response.statusCode,
+                        totalPages = index,
+                        totalResults = itemList.count() + itemListSeen.count(),
+                        seen = false
+                    )
+                )
+            } else if (itemList.size > 0 && itemListSeen.isEmpty()) {
+                //if the user has just unseen stories, merge in one object
                 stories.add(
                     Stories(
                         message = response.message,
@@ -99,15 +112,13 @@ class Repository(private val context: Context) {
                         seen = false
                     )
                 )
-            }
-
-            if (itemListSeen.size > 0) {
-                //create a stories object
+            } else if (itemList.isEmpty() && itemListSeen.size > 0) {
+                // if the user has just seen stories, merge in one object
                 stories.add(
                     Stories(
                         message = response.message,
                         page = response.page,
-                        results = itemList,
+                        results = itemListSeen,
                         statusCode = response.statusCode,
                         totalPages = index,
                         totalResults = itemListSeen.count(),
@@ -116,6 +127,7 @@ class Repository(private val context: Context) {
                 )
             }
         }
+
         return stories
     }
 
@@ -168,6 +180,13 @@ class Repository(private val context: Context) {
             }
 
         }
+    }
+
+    fun <T> merge(first: List<T>, second: List<T>): List<T> {
+        val list: MutableList<T> = ArrayList()
+        list.addAll(first)
+        list.addAll(second)
+        return list
     }
 
     fun cancelJobs() {

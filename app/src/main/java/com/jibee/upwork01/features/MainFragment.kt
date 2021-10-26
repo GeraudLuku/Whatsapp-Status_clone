@@ -117,6 +117,7 @@ class MainFragment : Fragment(R.layout.fragment_main), StoriesAdapter.OnItemClic
 
             binding.retryIndicator.isVisible =
                 results is Resource.Error && results.data.isNullOrEmpty()
+            binding.emptyIndicator.isVisible = results is Resource.Success && results.data.isNullOrEmpty()
 
         }
 
@@ -152,12 +153,12 @@ class MainFragment : Fragment(R.layout.fragment_main), StoriesAdapter.OnItemClic
 
         //onClick of retry
         retryIndicator.setOnClickListener {
-            viewModel.userStory.value = true
+            viewModel.friendsStory.value = !viewModel.friendsStory.value
         }
 
         //on click of user story retry
         retryUserStoryIndicator.setOnClickListener {
-            viewModel.friendsStory.value = true
+            viewModel.userStory.value = !viewModel.userStory.value
         }
 
     }

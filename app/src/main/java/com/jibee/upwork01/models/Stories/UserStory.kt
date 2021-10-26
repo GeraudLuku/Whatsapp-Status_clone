@@ -14,7 +14,7 @@ data class UserStory(
     @SerializedName("page")
     val page: Int,
     @SerializedName("results")
-    val results: ArrayList<Result>,
+    val results: List<Result>,
     @SerializedName("StatusCode")
     val statusCode: Int,
     @SerializedName("total_pages")

@@ -10,13 +10,13 @@ class Converters {
     inline fun <reified T> genericType() = object : TypeToken<T>() {}.type
 
     @TypeConverter
-    fun fromResultList(results: ArrayList<Result>): String {
+    fun fromResultList(results: List<Result>): String {
         return Gson().toJson(results)
     }
 
     @TypeConverter
-    fun toResultList(results: String): ArrayList<Result> {
-        val type = genericType<ArrayList<Result>>()
+    fun toResultList(results: String): List<Result> {
+        val type = genericType<List<Result>>()
         return Gson().fromJson(results, type)
     }
 }
