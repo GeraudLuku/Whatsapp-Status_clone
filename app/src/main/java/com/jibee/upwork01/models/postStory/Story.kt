@@ -3,7 +3,7 @@ package com.jibee.upwork01.models.postStory
 
 import com.google.gson.annotations.SerializedName
 
-data class PostStory(
+data class Story(
     @SerializedName("AddedDateAndTime")
     val addedDateAndTime: String,
     @SerializedName("Engagement")

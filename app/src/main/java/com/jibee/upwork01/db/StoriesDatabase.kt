@@ -5,11 +5,11 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.jibee.upwork01.models.Stories.Stories_All
+import com.jibee.upwork01.models.Stories.Stories
 import com.jibee.upwork01.models.Stories.UserStory
 
 @Database(
-    entities = [UserStory::class, Stories_All::class],
+    entities = [UserStory::class, Stories::class],
     version = 1
 )
 @TypeConverters(Converters::class)

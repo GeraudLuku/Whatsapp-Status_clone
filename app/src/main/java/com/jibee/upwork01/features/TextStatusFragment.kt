@@ -10,14 +10,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.jibee.upwork01.MainViewModel
 import com.jibee.upwork01.R
-import com.jibee.upwork01.models.postStory.PostStory
+import com.jibee.upwork01.models.postStory.Story
 import kotlinx.android.synthetic.main.fragment_status.*
 
 
@@ -104,7 +103,7 @@ class TextStatusFragment : Fragment() {
             val postText = statusTxt.text.toString().trim()
 
             //push status to the database
-            val story = PostStory(
+            val story = Story(
                 getCurrentDateTime().toString("yyyy-MM-dd HH:mm:ss"),
                 mediaURL = postText,
                 mimeType = ".txt" //set media first so we know if its just plain text or a file

@@ -7,19 +7,18 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat.getColor
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.devlomi.circularstatusview.CircularStatusView
 import com.jibee.upwork01.R
-import com.jibee.upwork01.models.Stories.Stories_All
+import com.jibee.upwork01.models.Stories.Stories
 import com.jibee.upwork01.util.TimeAgo
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
 class StoriesAdapter(
-    private val itemList: ArrayList<Stories_All>,
+    private val itemList: ArrayList<Stories>,
     private var clickListener: OnItemClickedListener,
     private val context: Context
 ) :
@@ -55,7 +54,7 @@ class StoriesAdapter(
         val indicator: CircularStatusView = itemView.findViewById(R.id.status_indicator)
 
         //init item click listener
-        fun initialize(story: Stories_All, action: OnItemClickedListener, position: Int) {
+        fun initialize(story: Stories, action: OnItemClickedListener, position: Int) {
 
             //set status count //check if its seen or unseen status
             if (story.results[0].seenStatus) {
@@ -93,6 +92,6 @@ class StoriesAdapter(
 
     }
     interface OnItemClickedListener {
-        fun onItemCLicked(story: Stories_All)
+        fun onItemCLicked(story: Stories)
     }
 }

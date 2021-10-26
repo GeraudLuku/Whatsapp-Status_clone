@@ -21,19 +21,16 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.jibee.upwork01.MainViewModel
 import com.jibee.upwork01.R
 import com.jibee.upwork01.models.Stories.Result
-import com.jibee.upwork01.models.Stories.Stories_All
+import com.jibee.upwork01.models.Stories.Stories
 import com.jibee.upwork01.util.TimeAgo
 import jp.shts.android.storiesprogressview.StoriesProgressView
 import kotlinx.android.synthetic.main.fragment_story_view.*
-import java.text.ParseException
-import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -43,7 +40,7 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
     private val storyArgs: StoryViewFragmentArgs by navArgs()
     private lateinit var mainViewModel: MainViewModel
 
-    private lateinit var storyItem: Stories_All
+    private lateinit var storyItem: Stories
     private lateinit var storiesProgressView: StoriesProgressView
 
     private var isFirstLoad: Boolean = true
@@ -229,14 +226,7 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
 
         //set other related information
         story_name.text = currentItem.userViewModel.userName
-        val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
-        try {
-            val date = format.parse(currentItem.addedDateAndTime)
-            story_time.text = TimeAgo.getTimeAgo(date!!.time).toString()
-        } catch (e: ParseException) {
-            e.printStackTrace()
-        }
-        //story_description.text = storyItem.content[currentItem].description
+        story_time.text = TimeAgo.getTimeAgo(currentItem.getCreatedTime()).toString()
     }
 
     private var isDurationSet: Boolean = false //check if the video duration has been set
@@ -322,14 +312,7 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
 
         //set other related information
         story_name.text = currentItem.userViewModel.userName
-        val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
-        try {
-            val date = format.parse(currentItem.addedDateAndTime)
-            story_time.text = TimeAgo.getTimeAgo(date!!.time).toString()
-        } catch (e: ParseException) {
-            e.printStackTrace()
-        }
-        //story_description.text = storyItem.content[currentItem].description
+        story_time.text = TimeAgo.getTimeAgo(currentItem.getCreatedTime()).toString()
     }
 
     private fun initExoplayer() {
@@ -364,14 +347,7 @@ class StoryViewFragment : Fragment(), StoriesProgressView.StoriesListener {
         //set other information
         //set other related information
         story_name.text = currentItem.userViewModel.userName
-        val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
-        try {
-            val date = format.parse(currentItem.addedDateAndTime)
-            story_time.text = TimeAgo.getTimeAgo(date!!.time).toString()
-        } catch (e: ParseException) {
-            e.printStackTrace()
-        }
-        //story_description.text = storyItem.content[currentItem].description
+        story_time.text = TimeAgo.getTimeAgo(currentItem.getCreatedTime()).toString()
     }
 
     //StoriesProgressView Methods

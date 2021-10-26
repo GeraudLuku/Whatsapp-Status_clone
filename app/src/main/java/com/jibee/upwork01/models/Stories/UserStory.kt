@@ -7,12 +7,13 @@ import java.io.Serializable
 
 @Entity(tableName = "user_stories")
 data class UserStory(
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     @SerializedName("Message")
     val message: String,
     @SerializedName("page")
     val page: Int,
     @SerializedName("results")
-    @PrimaryKey
     val results: ArrayList<Result>,
     @SerializedName("StatusCode")
     val statusCode: Int,

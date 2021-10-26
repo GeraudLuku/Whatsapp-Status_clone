@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -26,16 +25,12 @@ import com.google.firebase.storage.UploadTask
 import com.google.firebase.storage.ktx.storage
 import com.jibee.upwork01.MainViewModel
 import com.jibee.upwork01.R
-import com.jibee.upwork01.api.RetrofitBuilder
-import com.jibee.upwork01.models.postStory.PostStory
+import com.jibee.upwork01.models.postStory.Story
 import kotlinx.android.synthetic.main.fragment_detail.*
 import kotlinx.android.synthetic.main.fragment_detail.closeBtn
 import kotlinx.android.synthetic.main.fragment_detail.postBtn
 import kotlinx.android.synthetic.main.fragment_detail.progress_view
 import kotlinx.android.synthetic.main.fragment_status.*
-import kotlinx.coroutines.launch
-import java.io.File
-import java.net.URLConnection
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -141,7 +136,7 @@ class DetailFragment : Fragment() {
                         Log.d("Firebase", "$downloadUri")
 
                         //push status to the database
-                        val story = PostStory(
+                        val story = Story(
                             getCurrentDateTime().toString("yyyy-MM-dd HH:mm:ss"),
                             mediaURL = mediaUri,
                             mimeType = typeMedia

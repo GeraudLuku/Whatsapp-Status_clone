@@ -7,18 +7,20 @@ import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
 @Entity(tableName = "friends_stories")
-data class Stories_All(
+data class Stories(
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     @SerializedName("Message")
     val message: String,
     @SerializedName("page")
     val page: Int,
     @SerializedName("results")
-    @PrimaryKey
     val results: ArrayList<Result>,
     @SerializedName("StatusCode")
     val statusCode: Int,
     @SerializedName("total_pages")
     val totalPages: Int,
     @SerializedName("total_results")
-    val totalResults: Int
+    val totalResults: Int,
+    val seen: Boolean = true
 ) : Serializable

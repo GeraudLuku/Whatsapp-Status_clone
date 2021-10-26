@@ -3,6 +3,8 @@ package com.jibee.upwork01.models.Stories
 
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
+import java.text.SimpleDateFormat
+import java.util.*
 
 data class Result(
     @SerializedName("AddedDateAndTime")
@@ -29,4 +31,13 @@ data class Result(
     val userId: Int,
     @SerializedName("UserViewModel")
     val userViewModel: UserViewModel
-):Serializable
+) : Serializable {
+
+    fun getCreatedTime(): Long {
+        val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
+        return format.parse(addedDateAndTime).time
+    }
+
+    val isExpired
+    get() = ((getCreatedTime() / (1000 * 60 * 60)) % 24).toInt() > 24
+}

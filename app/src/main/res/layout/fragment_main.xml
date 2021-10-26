@@ -66,12 +66,12 @@
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/retryUserStoryIndicator"
-                    android:visibility="invisible"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
+                    android:layout_centerInParent="true"
                     android:src="@drawable/ic_retry"
                     android:tint="@color/white"
-                    android:layout_centerInParent="true"/>
+                    android:visibility="invisible" />
             </RelativeLayout>
 
             <LinearLayout
@@ -139,6 +139,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            tools:itemCount="3"
             android:background="@color/white"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             app:layout_constraintBottom_toTopOf="@+id/title_2"
