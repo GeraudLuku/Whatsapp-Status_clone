@@ -23,7 +23,6 @@ import com.appexecutors.picker.utils.PickerOptions
 import com.bumptech.glide.Glide
 import com.jibee.upwork01.MainViewModel
 import com.jibee.upwork01.R
-import com.jibee.upwork01.adapters.StoriesAdapter
 import com.jibee.upwork01.adapters.StoryAdapter
 import com.jibee.upwork01.databinding.FragmentMainBinding
 import com.jibee.upwork01.models.Stories.Stories
@@ -36,7 +35,7 @@ import kotlinx.android.synthetic.main.fragment_main.*
 import java.net.URLConnection
 
 
-class MainFragment : Fragment(R.layout.fragment_main), StoriesAdapter.OnItemClickedListener {
+class MainFragment : Fragment(R.layout.fragment_main), StoryAdapter.OnItemClickedListener {
 
     private lateinit var navController: NavController
 
@@ -49,8 +48,8 @@ class MainFragment : Fragment(R.layout.fragment_main), StoriesAdapter.OnItemClic
         super.onViewCreated(view, savedInstanceState)
 
         val binding = FragmentMainBinding.bind(view)
-        val storyAdapter = StoryAdapter()
-        val seenStoryAdapter = StoryAdapter()
+        val storyAdapter = StoryAdapter(this)
+        val seenStoryAdapter = StoryAdapter(this)
         binding.apply {
 
             //recycler view divider
@@ -72,13 +71,13 @@ class MainFragment : Fragment(R.layout.fragment_main), StoriesAdapter.OnItemClic
                 setHasFixedSize(false)
                 adapter = seenStoryAdapter
             }
-
         }
+
 
         viewModel.userStories.observe(viewLifecycleOwner) { result ->
             binding.apply {
                 result.data?.run {
-                    circularStatusView.setPortionsCount(this.totalResults)
+                    circularStatusView.setPortionsCount(totalResults)
                     circularStatusView.setPortionsColor(
                         ContextCompat.getColor(
                             requireContext(),
@@ -86,12 +85,21 @@ class MainFragment : Fragment(R.layout.fragment_main), StoriesAdapter.OnItemClic
                         )
                     )
                     Glide.with(requireView())
-                        .load(this.results[0].userViewModel.profilePhoto)
+                        .load(results[0].userViewModel.profilePhoto)
                         .into(profile_image)
 
                     add_story_indicator.text = "View my stories"
-                }
 
+                    userStatus.setOnClickListener {
+                        val action = MainFragmentDirections.actionMainFragmentToStoryViewFragment(
+                            Stories(
+                                id, message, page, results, statusCode, totalPages, totalResults
+                            )
+                        )
+                        navController.navigate(action)
+                    }
+
+                }
             }
 
             retryUserStoryIndicator.isVisible =
@@ -102,10 +110,14 @@ class MainFragment : Fragment(R.layout.fragment_main), StoriesAdapter.OnItemClic
 
             Log.d("Friends Stories", "${results.data}")
 
+            // clear lists
             storyList.clear()
             storyListSeen.clear()
 
-            results.data?.forEach { story ->
+            //local stories object
+            val stories = results
+
+            stories.data?.forEach { story ->
                 if (story.seen)
                     storyListSeen.add(story)
                 else
@@ -117,7 +129,8 @@ class MainFragment : Fragment(R.layout.fragment_main), StoriesAdapter.OnItemClic
 
             binding.retryIndicator.isVisible =
                 results is Resource.Error && results.data.isNullOrEmpty()
-            binding.emptyIndicator.isVisible = results is Resource.Success && results.data.isNullOrEmpty()
+            binding.emptyIndicator.isVisible =
+                results is Resource.Success && results.data.isNullOrEmpty()
 
         }
 
@@ -150,17 +163,6 @@ class MainFragment : Fragment(R.layout.fragment_main), StoriesAdapter.OnItemClic
         status.setOnClickListener {
             navController.navigate(R.id.action_mainFragment_to_statusFragment)
         }
-
-        //onClick of retry
-        retryIndicator.setOnClickListener {
-            viewModel.friendsStory.value = !viewModel.friendsStory.value
-        }
-
-        //on click of user story retry
-        retryUserStoryIndicator.setOnClickListener {
-            viewModel.userStory.value = !viewModel.userStory.value
-        }
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

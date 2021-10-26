@@ -12,7 +12,9 @@ import com.jibee.upwork01.databinding.UserStoryItemBinding
 import com.jibee.upwork01.models.Stories.Stories
 import com.jibee.upwork01.util.TimeAgo
 
-class StoryAdapter : ListAdapter<Stories, StoryAdapter.StoriesViewHolder>(DiffCallback()) {
+class StoryAdapter(
+    private var clickListener: StoryAdapter.OnItemClickedListener,
+) : ListAdapter<Stories, StoryAdapter.StoriesViewHolder>(DiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StoriesViewHolder {
         val binding =
@@ -23,6 +25,10 @@ class StoryAdapter : ListAdapter<Stories, StoryAdapter.StoriesViewHolder>(DiffCa
     override fun onBindViewHolder(holder: StoriesViewHolder, position: Int) {
         val currentItem = getItem(position)
         holder.bind(currentItem)
+
+        holder.itemView.setOnClickListener {
+            clickListener.onItemCLicked(currentItem)
+        }
     }
 
     class StoriesViewHolder(private val binding: UserStoryItemBinding) :
@@ -56,8 +62,7 @@ class StoryAdapter : ListAdapter<Stories, StoryAdapter.StoriesViewHolder>(DiffCa
                 time.text =
                     TimeAgo.getTimeAgo(
                         stories.results.get(stories.results.size - 1).getCreatedTime()
-                    )
-                        .toString()
+                    ).toString()
 
                 //last status image will be the users profile picture
                 Glide.with(binding.root)
@@ -74,5 +79,9 @@ class StoryAdapter : ListAdapter<Stories, StoryAdapter.StoriesViewHolder>(DiffCa
 
         override fun areContentsTheSame(oldItem: Stories, newItem: Stories) =
             oldItem.results == newItem.results
+    }
+
+    interface OnItemClickedListener {
+        fun onItemCLicked(story: Stories)
     }
 }
